@@ -48,6 +48,18 @@ def get_python_process():
             continue
     return None
 
+def log_process_tree(proc):
+    try:
+        print(f"[TREE] Process Tree for PID {proc.pid}:")
+        current = proc
+        level = 0
+        while current:
+            print(f"{'    '*level}- PID: {current.pid}, Name: {current.name()}, Executable: {current.exe()}")
+            current = current.parent()
+            level += 1
+    except Exception as e:
+        print(f"[TREE ERROR] {e}")
+
 def handle_flag(pid, reason):
     try:
         proc = psutil.Process(pid)
@@ -57,26 +69,90 @@ def handle_flag(pid, reason):
         print(f"PID         : {pid}")
         print(f"Executable  : {proc.exe()}")
 
-        # Try soft terminate first
-        proc.terminate()
-        try:
-            proc.wait(timeout=2)
-            print("[ACTION] Process terminated gracefully.")
-        except psutil.TimeoutExpired:
-            print("[WARN] Graceful termination failed, force killing...")
-            proc.kill()
-            proc.wait()
-            print("[ACTION] Process forcefully killed.")
+        # Log the process tree
+        log_process_tree(proc)
+
+        # Log and terminate all child processes of the suspicious process
+        children = proc.children(recursive=True)
+        if children:
+            print(f"[INFO] Terminating child processes of PID {pid}:")
+            for child in children:
+                print(f"  - PID: {child.pid}, Executable: {child.exe()}")
+                # Uncomment the following lines to terminate child processes
+                # child.terminate()
+                # try:
+                #     child.wait(timeout=2)
+                #     print(f"[ACTION] Child process {child.pid} terminated gracefully.")
+                # except psutil.TimeoutExpired:
+                #     child.kill()
+                #     print(f"[ACTION] Child process {child.pid} forcefully killed.")
+        else:
+            print(f"[INFO] No child processes found for PID {pid}.")
     except psutil.AccessDenied:
         print(f"[ERROR] Access Denied: Could not terminate PID {pid}. Run this script as Administrator.")
     except Exception as e:
         print(f"[ERROR] Termination failed for PID {pid}: {e}")
 
+def log_open_files(proc):
+    try:
+        open_files = proc.open_files()
+        if open_files:
+            print(f"[INFO] Open files for PID {proc.pid}:")
+            for file in open_files:
+                print(f"  - {file.path}")
+        else:
+            print(f"[INFO] No open files found for PID {proc.pid}.")
+    except psutil.AccessDenied:
+        print(f"[ERROR] Access denied while retrieving open files for PID {proc.pid}.")
+    except Exception as e:
+        print(f"[ERROR] Failed to retrieve open files for PID {proc.pid}: {e}")
+
+def log_loaded_modules(proc):
+    try:
+        modules = proc.memory_maps()
+        if modules:
+            print(f"[INFO] Loaded modules for PID {proc.pid}:")
+            for module in modules:
+                print(f"  - {module.path}")
+        else:
+            print(f"[INFO] No loaded modules found for PID {proc.pid}.")
+    except psutil.AccessDenied:
+        print(f"[ERROR] Access denied while retrieving loaded modules for PID {proc.pid}.")
+    except Exception as e:
+        print(f"[ERROR] Failed to retrieve loaded modules for PID {proc.pid}: {e}")
 
 class RansomDetector(FileSystemEventHandler):
+    def log_event(self, event_type, path):
+        proc = get_python_process()
+        pid = proc.pid if proc else "Unknown"
+        exe = proc.exe() if proc else "Unknown"
+        print(f"[LOG] Event: {event_type} | Path: {path} | PID: {pid} | Executable: {exe}")
+
+        if proc:
+            try:
+                # Log child processes
+                children = proc.children(recursive=True)
+                if children:
+                    print(f"[INFO] Child Processes of PID {pid}:")
+                    for child in children:
+                        print(f"  - PID: {child.pid}, Executable: {child.exe()}")
+                else:
+                    print(f"[INFO] No child processes found for PID {pid}.")
+
+                # # Log open files
+                # log_open_files(proc)
+
+                # # Log loaded modules
+                # log_loaded_modules(proc)
+            except psutil.AccessDenied:
+                print(f"[ERROR] Access denied while retrieving information for PID {pid}.")
+            except Exception as e:
+                print(f"[ERROR] Failed to retrieve information for PID {pid}: {e}")
+
     def on_modified(self, event):
         if event.is_directory:
             return
+        self.log_event("Modified", event.src_path)
 
         path = Path(event.src_path)
         if not path.exists():
@@ -122,6 +198,21 @@ class RansomDetector(FileSystemEventHandler):
 
         if process_scores[proc.pid] >= SCORE_THRESHOLD:
             handle_flag(proc.pid, "Score threshold exceeded")
+
+    def on_created(self, event):
+        if event.is_directory:
+            return
+        self.log_event("Created", event.src_path)
+
+    def on_deleted(self, event):
+        if event.is_directory:
+            return
+        self.log_event("Deleted", event.src_path)
+
+    def on_moved(self, event):
+        if event.is_directory:
+            return
+        self.log_event("Renamed", f"{event.src_path} -> {event.dest_path}")
 
 def run():
     observer = Observer()

