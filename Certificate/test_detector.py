@@ -20,7 +20,10 @@ file_entropy = {}
 file_change_count = defaultdict(list)
 
 def log_to_file(message):
-    with open(LOG_FILE, "a") as log_file:
+    """
+    Log messages to the log file using UTF-8 encoding to support all Unicode characters.
+    """
+    with open(LOG_FILE, "a", encoding="utf-8") as log_file:
         log_file.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - {message}\n")
 
 def calculate_entropy(data):
@@ -45,11 +48,18 @@ def read_entropy(filepath):
         return 0
 
 def get_python_process():
+    """
+    Ensure the correct Python process is detected, excluding the detector itself.
+    """
+    current_pid = os.getpid()  # Get the PID of the current process
     for p in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
+            if p.pid == current_pid:
+                continue  # Skip the detector process itself
             if 'python' in p.name().lower() or 'python' in ' '.join(p.cmdline()).lower():
                 return p
-        except:
+        except (psutil.AccessDenied, psutil.NoSuchProcess):
+            # Skip processes we cannot access or that no longer exist
             continue
     return None
 
@@ -66,6 +76,9 @@ def log_process_tree(proc):
         print(f"[TREE ERROR] {e}")
 
 def handle_flag(pid, reason):
+    """
+    Terminate the main process and all its children.
+    """
     try:
         proc = psutil.Process(pid)
         log_message = (
@@ -92,18 +105,25 @@ def handle_flag(pid, reason):
                 except psutil.TimeoutExpired:
                     child.kill()
                     log_to_file(f"[ACTION] Child process {child.pid} forcefully killed.")
+                except psutil.NoSuchProcess:
+                    log_to_file(f"[INFO] Child process {child.pid} no longer exists.")
         else:
             log_to_file(f"[INFO] No child processes found for PID {pid}.")
 
         # Terminate the suspicious process
-        proc.terminate()
-        proc.wait(timeout=2)
-        log_to_file(f"[ACTION] Suspicious process {pid} terminated gracefully.")
-    except psutil.TimeoutExpired:
-        proc.kill()
-        log_to_file(f"[ACTION] Suspicious process {pid} forcefully killed.")
+        try:
+            proc.terminate()
+            proc.wait(timeout=2)
+            log_to_file(f"[ACTION] Suspicious process {pid} terminated gracefully.")
+        except psutil.TimeoutExpired:
+            proc.kill()
+            log_to_file(f"[ACTION] Suspicious process {pid} forcefully killed.")
+        except psutil.NoSuchProcess:
+            log_to_file(f"[INFO] Suspicious process {pid} no longer exists.")
     except psutil.AccessDenied:
         log_to_file(f"[ERROR] Access Denied: Could not terminate PID {pid}. Run this script as Administrator.")
+    except psutil.NoSuchProcess:
+        log_to_file(f"[INFO] Process {pid} no longer exists.")
     except Exception as e:
         log_to_file(f"[ERROR] Termination failed for PID {pid}: {e}")
 
@@ -137,9 +157,18 @@ def log_loaded_modules(proc):
 
 class RansomDetector(FileSystemEventHandler):
     def log_event(self, event_type, path):
+        """
+        Log events and ensure the process is never marked as "Unknown."
+        """
         proc = get_python_process()
-        pid = proc.pid if proc else "Unknown"
-        exe = proc.exe() if proc else "Unknown"
+        if proc:
+            pid = proc.pid
+            exe = proc.exe()
+        else:
+            pid = "Unknown"
+            exe = "Unknown"
+            log_to_file("[ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.")
+
         log_message = f"[LOG] Event: {event_type} | Path: {path} | PID: {pid} | Executable: {exe}"
         print(log_message)
         log_to_file(log_message)
