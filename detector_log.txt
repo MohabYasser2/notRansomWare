@@ -1,264 +1,407 @@
-2025-04-24 01:44:31 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy (2) - Copy.txt | PID: 18312 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:32 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (2) - Copy.txt | PID: 18312 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:34 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy.txt | PID: 18312 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:34 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy.txt | PID: 18312 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:36 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy (3).txt | PID: 18312 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:37 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (3).txt | PID: 18312 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:39 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy (3) - Copy.txt | PID: 18312 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:39 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (3) - Copy.txt | PID: 18312 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:41 - 
-[ALERT 🚨] Suspicious Process Detected:
-Reason      : Score threshold exceeded
-Name        : Code.exe
-PID         : 18312
-Executable  : C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-
-2025-04-24 01:44:41 - [INFO] No child processes found for PID 18312.
-2025-04-24 01:44:41 - [ACTION] Suspicious process 18312 terminated gracefully.
-2025-04-24 01:44:42 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (2).txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:44:43 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (2).txt | PID: 23984 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:47 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy (4).txt | PID: 23984 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:48 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (4).txt | PID: 23984 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:50 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy (4) - Copy.txt | PID: 23984 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:50 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (4) - Copy.txt | PID: 23984 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:52 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (3).txt | PID: 23984 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:52 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (3).txt | PID: 23984 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:54 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy (5).txt | PID: 23984 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:54 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (5).txt | PID: 23984 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:44:55 - 
-[ALERT 🚨] Suspicious Process Detected:
-Reason      : Score threshold exceeded
-Name        : Code.exe
-PID         : 23984
-Executable  : C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-
-2025-04-24 01:44:55 - [INFO] No child processes found for PID 23984.
-2025-04-24 01:44:55 - [ACTION] Suspicious process 23984 terminated gracefully.
-2025-04-24 01:44:56 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy (5) - Copy.txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:44:57 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (5) - Copy.txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:45:00 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (5).txt | PID: 11852 | Executable: C:\Users\mohab\anaconda3\python.exe
-2025-04-24 01:45:02 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (5) - Copy.txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:45:03 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy (6) - Copy.txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:45:04 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (6) - Copy.txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:45:06 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (4).txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:45:06 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (4).txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:45:08 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (6) - Copy.txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:45:09 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy (6).txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:45:10 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (6).txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:45:11 - [LOG] Event: Created | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (5).txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:45:12 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (5).txt | PID: 24080 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-2025-04-24 01:45:13 - 
-[ALERT 🚨] Suspicious Process Detected:
-Reason      : Score threshold exceeded
-Name        : pet.exe
-PID         : 24080
-Executable  : C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
-
-2025-04-24 01:45:13 - [ACTION] Child process 12248 terminated gracefully.
-2025-04-24 01:45:13 - [ACTION] Suspicious process 24080 terminated gracefully.
-2025-04-24 01:45:13 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (6).txt | PID: 25204 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:45:15 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (5).txt | PID: 25204 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:48:09 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (6) - Copy - Copy.txt | PID: 5524 | Executable: C:\Users\mohab\anaconda3\python.exe
-2025-04-24 01:48:11 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (6) - Copy - Copy.txt | PID: 5524 | Executable: C:\Users\mohab\anaconda3\python.exe
-2025-04-24 01:48:13 - 
+2025-04-24 02:06:17 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (9) - Copy - Copy.txt | PID: 12304 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:06:19 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (9) - Copy - Copy.txt | PID: 12304 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:06:20 - 
 [ALERT 🚨] Suspicious Process Detected:
 Reason      : Score threshold exceeded
 Name        : python.exe
-PID         : 5524
+PID         : 12304
 Executable  : C:\Users\mohab\anaconda3\python.exe
 
-2025-04-24 01:48:13 - [INFO] No child processes found for PID 5524.
-2025-04-24 01:48:13 - [ACTION] Suspicious process 5524 terminated gracefully.
-2025-04-24 01:48:14 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (36) - Copy.txt | PID: 25204 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:48:16 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (11).txt | PID: 25204 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:48:18 - 
+2025-04-24 02:06:20 - [INFO] No child processes found for PID 12304.
+2025-04-24 02:06:20 - [ACTION] Suspicious process 12304 terminated gracefully.
+2025-04-24 02:06:21 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (23) - Copy - Copy - Copy.txt | PID: 20940 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:06:23 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (16) - Copy - Copy - Copy.txt | PID: 20940 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:06:24 - 
+[ALERT 🚨] Suspicious Process Detected:
+Reason      : Score threshold exceeded
+Name        : python.exe
+PID         : 20940
+Executable  : C:\Users\mohab\anaconda3\python.exe
+
+2025-04-24 02:06:24 - [INFO] No child processes found for PID 20940.
+2025-04-24 02:06:24 - [ACTION] Suspicious process 20940 terminated gracefully.
+2025-04-24 02:06:25 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:25 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy - Copy (2).txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:27 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:27 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (13) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:28 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:28 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (58) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:30 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:30 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (32) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:32 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:32 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (16) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:33 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:33 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (18) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:35 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:35 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (25) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:36 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:36 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (26) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:38 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:38 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (21) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:40 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:40 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (5) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:41 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:41 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (10).txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:43 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:43 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (25) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:45 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:45 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:46 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:46 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (12) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:48 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:48 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (26) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:49 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:49 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (29) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:51 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:51 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (31) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:52 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:52 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (52) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:53 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:53 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (35) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:55 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:55 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (56) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:56 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:56 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (57) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:06:58 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:06:58 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (12) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:07:00 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:07:00 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy - Copy (2) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:07:01 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:07:01 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (28) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:07:03 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:07:03 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (7).txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:07:05 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:07:05 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (10) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:07:07 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:07:07 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (15) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:17:49 - [ERROR] Failed to request admin permissions: name 'sys' is not defined
+2025-04-24 02:19:22 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:19:22 -   - PID: 11520, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:19:22 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:19:22 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:19:22 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (15) - Copy.txt | PID: 11520 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:19:23 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:19:23 -   - PID: 11520, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:19:23 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:19:23 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:19:23 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:19:23 -   - PID: 11520, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:19:23 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:19:23 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:19:23 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (15) - Copy.txt | PID: 11520 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:19:25 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:19:25 -   - PID: 11520, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:19:25 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:19:25 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:19:25 - 
 [ALERT 🚨] Suspicious Process Detected:
 Reason      : Score threshold exceeded
 Name        : Code.exe
-PID         : 25204
+PID         : 11520
 Executable  : C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
 
-2025-04-24 01:48:18 - [INFO] No child processes found for PID 25204.
-2025-04-24 01:48:19 - [ACTION] Suspicious process 25204 terminated gracefully.
-2025-04-24 01:48:20 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:20 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (36) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:48:22 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (58) - Copy - Copy.txt | PID: 14200 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:48:24 - 
+2025-04-24 02:19:25 - [INFO] No child processes found for PID 11520.
+2025-04-24 02:19:26 - [ACTION] Suspicious process 11520 terminated gracefully.
+2025-04-24 02:19:26 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:19:26 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:19:26 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:19:26 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (6) - Copy - Copy.txt | PID: 20408 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:19:28 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:19:28 -   - PID: 2364, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:19:28 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:19:28 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:19:28 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:19:28 -   - PID: 2364, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:19:28 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:19:28 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:19:28 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (17) - Copy - Copy - Copy.txt | PID: 2364 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:19:29 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:19:29 -   - PID: 2364, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:19:29 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:19:29 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:19:29 - 
 [ALERT 🚨] Suspicious Process Detected:
 Reason      : Score threshold exceeded
 Name        : Code.exe
-PID         : 14200
+PID         : 2364
 Executable  : C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
 
-2025-04-24 01:48:24 - [INFO] No child processes found for PID 14200.
-2025-04-24 01:48:24 - [ACTION] Suspicious process 14200 terminated gracefully.
-2025-04-24 01:48:24 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (4) - Copy.txt | PID: 10680 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:48:26 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (22) - Copy - Copy - Copy.txt | PID: 10680 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:48:28 - 
+2025-04-24 02:19:29 - [INFO] No child processes found for PID 2364.
+2025-04-24 02:19:29 - [ACTION] Suspicious process 2364 terminated gracefully.
+2025-04-24 02:19:30 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:19:30 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:19:30 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:19:30 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (5).txt | PID: 20408 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:19:31 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:21 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:21 -   - PID: 10060, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:21 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:21 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:21 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (10) - Copy - Copy - Copy - Copy.txt | PID: 10060 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:22 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:22 -   - PID: 10060, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:22 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:22 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:23 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:23 -   - PID: 10060, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:23 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:23 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:23 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (10) - Copy - Copy - Copy - Copy.txt | PID: 10060 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:24 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:24 -   - PID: 10060, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:24 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:24 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:24 - 
 [ALERT 🚨] Suspicious Process Detected:
 Reason      : Score threshold exceeded
 Name        : Code.exe
-PID         : 10680
+PID         : 10060
 Executable  : C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
 
-2025-04-24 01:48:28 - [INFO] No child processes found for PID 10680.
-2025-04-24 01:48:28 - [ACTION] Suspicious process 10680 terminated gracefully.
-2025-04-24 01:48:28 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:28 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy - Copy (3) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:48:31 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (7) - Copy - Copy - Copy - Copy.txt | PID: 10436 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:48:32 - 
+2025-04-24 02:22:24 - [INFO] No child processes found for PID 10060.
+2025-04-24 02:22:24 - [ACTION] Suspicious process 10060 terminated gracefully.
+2025-04-24 02:22:24 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:24 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:24 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:24 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (10) - Copy - Copy - Copy.txt | PID: 20408 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:26 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:26 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:26 -   - PID: 26796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:26 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:26 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:26 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:26 -   - PID: 26796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:26 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:26 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (10) - Copy - Copy.txt | PID: 20408 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:28 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:28 -   - PID: 20408, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:28 -   - PID: 26796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:28 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:28 - 
+[ALERT 🚨] Suspicious Process Detected:
+Reason      : Score threshold exceeded
+Name        : python.exe
+PID         : 20408
+Executable  : C:\Users\mohab\anaconda3\python.exe
+
+2025-04-24 02:22:28 - [INFO] No child processes found for PID 20408.
+2025-04-24 02:22:28 - [ACTION] Suspicious process 20408 terminated gracefully.
+2025-04-24 02:22:29 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:29 -   - PID: 3076, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:29 -   - PID: 18836, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:29 -   - PID: 20460, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:29 -   - PID: 23716, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:29 -   - PID: 25792, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:29 -   - PID: 26796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:29 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:29 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (10) - Copy.txt | PID: 3076 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:31 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:31 -   - PID: 3076, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:31 -   - PID: 18836, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:31 -   - PID: 20460, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:31 -   - PID: 23716, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:31 -   - PID: 25792, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:31 -   - PID: 26796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:31 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:32 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:32 -   - PID: 3076, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:32 -   - PID: 26796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:32 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:32 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (10).txt | PID: 3076 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:33 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:33 -   - PID: 26796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:33 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:33 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:33 -   - PID: 26796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:33 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:33 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (11) - Copy - Copy - Copy - Copy.txt | PID: 26796 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:35 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:35 -   - PID: 26796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:35 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:35 - 
 [ALERT 🚨] Suspicious Process Detected:
 Reason      : Score threshold exceeded
 Name        : Code.exe
-PID         : 10436
+PID         : 26796
 Executable  : C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
 
-2025-04-24 01:48:32 - [INFO] No child processes found for PID 10436.
-2025-04-24 01:48:32 - [ACTION] Suspicious process 10436 terminated gracefully.
-2025-04-24 01:48:33 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (11) - Copy - Copy.txt | PID: 26188 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:48:35 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (15) - Copy - Copy.txt | PID: 26188 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
-2025-04-24 01:48:37 - 
+2025-04-24 02:22:35 - [INFO] No child processes found for PID 26796.
+2025-04-24 02:22:35 - [ACTION] Suspicious process 26796 terminated gracefully.
+2025-04-24 02:22:35 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (11) - Copy - Copy - Copy.txt | PID: 26900 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:37 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:37 -   - PID: 12224, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:37 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:38 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:38 -   - PID: 12224, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:38 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:38 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (11) - Copy - Copy.txt | PID: 12224 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:39 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:39 -   - PID: 12224, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:39 -   - PID: 14344, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:39 -   - PID: 19624, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:39 -   - PID: 20640, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:39 -   - PID: 23472, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:39 -   - PID: 25952, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:39 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:39 - 
 [ALERT 🚨] Suspicious Process Detected:
 Reason      : Score threshold exceeded
 Name        : Code.exe
-PID         : 26188
+PID         : 12224
 Executable  : C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
 
-2025-04-24 01:48:37 - [INFO] No child processes found for PID 26188.
-2025-04-24 01:48:37 - [ACTION] Suspicious process 26188 terminated gracefully.
-2025-04-24 01:48:38 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:38 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (30) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:48:40 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:40 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (12) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:48:42 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:42 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (20) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:48:44 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:44 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (16) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:48:46 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:46 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (49) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:48:48 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:48 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (7) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:48:50 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:50 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (35) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:48:52 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:52 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (16) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:48:55 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:55 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (10) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:48:58 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:48:58 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (22) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:00 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:00 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (20) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:02 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:02 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (13) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:05 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:05 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (7).txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:07 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:07 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (37) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:10 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:10 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (37) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:13 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:13 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (16) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:15 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:15 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (5) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:18 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:18 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (32) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:20 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:20 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (10).txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:22 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:22 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (2) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:24 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:24 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (37) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:26 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:26 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (5).txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:28 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:28 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (16) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:30 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:30 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (2) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:32 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:32 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (23) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:34 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:34 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (7) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:36 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:36 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (9) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:38 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:38 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (9) - Copy - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:40 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:40 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (9) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:42 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:42 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (11) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:44 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:44 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (4) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:46 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:46 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (14) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:48 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:48 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy - Copy (4).txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:50 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:50 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (41) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:51 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:51 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (12) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:54 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:54 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (3).txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:56 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:56 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (26) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:57 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:57 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (46) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:49:59 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:49:59 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (27) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:01 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:01 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (8).txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:03 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:03 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (14) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:05 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:05 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (9).txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:07 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:07 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (42) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:09 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:09 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (10) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:11 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:11 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (15) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:13 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:13 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (11) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:15 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:15 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (21) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:17 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:17 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (32) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:19 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:19 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (3) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:21 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:21 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (15) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:23 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:23 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (9).txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:25 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:25 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (9) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:27 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:27 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (50) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:29 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:29 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (21) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:31 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:31 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (17) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:32 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:32 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (16) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:34 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:34 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (3) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:36 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:36 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (25) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:38 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:38 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (47) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:40 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:40 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:42 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:42 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (51) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:44 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:44 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (23) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:46 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:46 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (4) - Copy - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:48 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:48 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (6) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:49 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:49 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy - Copy (3) - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:51 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:51 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (12) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:53 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:53 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (56) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
-2025-04-24 01:50:55 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
-2025-04-24 01:50:55 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (28) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:22:39 - [ACTION] Child process 14344 terminated gracefully.
+2025-04-24 02:22:40 - [ACTION] Child process 23472 terminated gracefully.
+2025-04-24 02:22:40 - [ACTION] Child process 20640 terminated gracefully.
+2025-04-24 02:22:40 - [ACTION] Child process 25952 terminated gracefully.
+2025-04-24 02:22:40 - [ACTION] Child process 19624 terminated gracefully.
+2025-04-24 02:22:40 - [INFO] Child process 22556 no longer exists.
+2025-04-24 02:22:40 - [INFO] Child process 27040 no longer exists.
+2025-04-24 02:22:40 - [INFO] Child process 25920 no longer exists.
+2025-04-24 02:22:40 - [INFO] Child process 24432 no longer exists.
+2025-04-24 02:22:40 - [INFO] Child process 19484 no longer exists.
+2025-04-24 02:22:40 - [ACTION] Suspicious process 12224 terminated gracefully.
+2025-04-24 02:22:40 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:40 -   - PID: 24796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:40 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:40 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (11) - Copy.txt | PID: 24796 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:42 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:42 -   - PID: 18032, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:42 -   - PID: 24796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:42 -   - PID: 25272, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:42 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:43 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:43 -   - PID: 18892, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:43 -   - PID: 23432, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:43 -   - PID: 24796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:43 -   - PID: 25272, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:43 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:43 -   - PID: 27032, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:43 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (11).txt | PID: 18892 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:44 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:44 -   - PID: 24796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:44 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:45 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:45 -   - PID: 24796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:45 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:45 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (12) - Copy - Copy - Copy.txt | PID: 24796 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:46 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:46 -   - PID: 24796, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:46 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:46 - 
+[ALERT 🚨] Suspicious Process Detected:
+Reason      : Score threshold exceeded
+Name        : Code.exe
+PID         : 24796
+Executable  : C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+
+2025-04-24 02:22:46 - [INFO] No child processes found for PID 24796.
+2025-04-24 02:22:46 - [ACTION] Suspicious process 24796 terminated gracefully.
+2025-04-24 02:22:46 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:46 -   - PID: 22800, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:46 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:46 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (12) - Copy - Copy.txt | PID: 22800 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:48 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:48 -   - PID: 16392, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:48 -   - PID: 22800, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:48 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:49 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:49 -   - PID: 5844, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:49 -   - PID: 17616, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:49 -   - PID: 19612, Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:49 -   - PID: 22800, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:49 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:49 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (12) - Copy.txt | PID: 5844 | Executable: C:\Users\mohab\anaconda3\python.exe
+2025-04-24 02:22:50 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:50 -   - PID: 22800, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:50 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:50 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:50 -   - PID: 22800, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:50 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:50 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (12).txt | PID: 22800 | Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:52 - [DEBUG] Multiple Python processes detected:
+2025-04-24 02:22:52 -   - PID: 22800, Executable: C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+2025-04-24 02:22:52 -   - PID: 26900, Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:52 - 
+[ALERT 🚨] Suspicious Process Detected:
+Reason      : Score threshold exceeded
+Name        : Code.exe
+PID         : 22800
+Executable  : C:\Users\mohab\AppData\Local\Programs\Microsoft VS Code\Code.exe
+
+2025-04-24 02:22:52 - [INFO] No child processes found for PID 22800.
+2025-04-24 02:22:52 - [ACTION] Suspicious process 22800 terminated gracefully.
+2025-04-24 02:22:52 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (13) - Copy - Copy - Copy.txt | PID: 26900 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:54 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (13) - Copy - Copy.txt | PID: 26900 | Executable: C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+2025-04-24 02:22:55 - 
+[ALERT 🚨] Suspicious Process Detected:
+Reason      : Score threshold exceeded
+Name        : pet.exe
+PID         : 26900
+Executable  : C:\Users\mohab\.vscode\extensions\ms-python.python-2025.4.0-win32-x64\python-env-tools\bin\pet.exe
+
+2025-04-24 02:22:55 - [ACTION] Child process 27068 terminated gracefully.
+2025-04-24 02:22:55 - [ACTION] Suspicious process 26900 terminated gracefully.
+2025-04-24 02:22:55 - [DEBUG] No Python processes detected.
+2025-04-24 02:22:55 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:22:55 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (13) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:22:56 - [DEBUG] No Python processes detected.
+2025-04-24 02:22:57 - [DEBUG] No Python processes detected.
+2025-04-24 02:22:57 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:22:57 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (14) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:22:58 - [DEBUG] No Python processes detected.
+2025-04-24 02:22:58 - [DEBUG] No Python processes detected.
+2025-04-24 02:22:58 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:22:58 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (14) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:22:59 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:00 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:00 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:00 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (14) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:01 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:01 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:01 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:01 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (15) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:03 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:03 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:03 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:03 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (15) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:04 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:05 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:05 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:05 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (15) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:06 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:06 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:06 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:06 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (16) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:08 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:08 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:08 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:08 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (16) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:10 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:10 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:10 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:10 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (16) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:11 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:12 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:12 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:12 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (17) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:13 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:14 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:14 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:14 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (17) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:15 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:15 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:15 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:15 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (17) - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:17 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:17 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:17 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:17 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (18) - Copy - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:18 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:19 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:19 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:19 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (18) - Copy - Copy.txt | PID: Unknown | Executable: Unknown
+2025-04-24 02:23:20 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:21 - [DEBUG] No Python processes detected.
+2025-04-24 02:23:21 - [ERROR] Failed to detect Python process. Ensure the script has sufficient permissions.
+2025-04-24 02:23:21 - [LOG] Event: Modified | Path: testfolder\adada - Copy - Copy - Copy - Copy (18) - Copy.txt | PID: Unknown | Executable: Unknown
