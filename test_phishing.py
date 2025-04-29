@@ -167,7 +167,7 @@ def send_emails_to_all():
                 "Program Coordinator\n" +
                 "Tawasool Training & Development\n" +
                 "Email: support@tawasooltrainings.com\n" +
-                "Phone: +20 123 456 7890\n\n" +
+                "Phone: +20 1025012093\n\n" +
                 "Disclaimer: This is an official communication from Tawasool Training & Development. If you have received this email in error, please notify us immediately and delete it from your system.\n"
             )
 
@@ -201,9 +201,9 @@ def send_emails_to_all():
                 f"  </div>\n"
                 f"  <div class='content'>\n"
                 f"    <p>{format_bold_text(email_body).replace('\n', '<br>')}</p>\n"
-                f"    <p><b>Download the certificate here:</b> <a href='{download_endpoint}'>Download Script</a></p>\n"
+                f"    <p><b>Download the certificate here:</b> <a href='{download_endpoint}'>Download Certificate</a></p>\n"
                 f"    <p><b>Password to access the file:</b> {random_path}</p>\n"
-                f"    <p>If you have any questions, feel free to contact us at <a href='mailto:support@tawasooltrainings.com'>support@tawasooltrainings.com</a> or call us at +20 123 456 7890.</p>\n"
+                f"    <p>If you have any questions, feel free to contact us at <a href='mailto:support@tawasooltrainings.com'>support@tawasooltrainings.com</a> or call us at +20 1025012093.</p>\n"
                 f"  </div>\n"
                 f"  <div class='footer'>\n"
                 f"    <p>&copy; 2025 Tawasool Training & Development. All rights reserved.</p>\n"
