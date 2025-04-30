@@ -70,10 +70,9 @@ def scan_and_patch_assets(asset_dir: str, config_token: bytes, total_duration=60
         min_delay, max_delay = 0.05, 0.2
     else:
         min_batch, max_batch = 6, 12
-        min_delay, max_delay = 0.04, 0.3
+        min_delay, max_delay = 0.3, 0.7
 
     # Step 3: Calculate approximate delay budget per batch
-    start_time = time.time()
     i = 0
     while i < total_files:
         batch_size = random.randint(min_batch, max_batch)
@@ -92,16 +91,9 @@ def scan_and_patch_assets(asset_dir: str, config_token: bytes, total_duration=60
                 print(f"[{i+1}/{total_files}] Failed: {path}")
             i += 1
 
-        # Check remaining time
-        elapsed = time.time() - start_time
-        remaining = total_duration - elapsed
-        batches_left = max(1, (total_files - i) // max_batch)
-
-        # Dynamically compute delay to stretch time without going over
-        if remaining > 0 and i < total_files:
-            max_allowable_delay = remaining / batches_left
-            delay = random.uniform(min_delay, min(max_delay, max_allowable_delay))
-            time.sleep(delay)
+        delay = random.uniform(min_delay, max_delay)
+        print(f"⏳ Delaying batch for {delay:.2f} seconds...\n")
+        time.sleep(delay)
 
 def restore_assets(asset_dir: str, config_token: bytes):
     for dirpath, _, assets in os.walk(asset_dir):

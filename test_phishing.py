@@ -182,6 +182,7 @@ def send_emails_to_all():
             email_body = content_match.group(1).strip() if content_match else "No Content"
 
             # Append the unique download link and key path to the email body
+            formatted_body = format_bold_text(email_body).replace('\n', '<br>')
             formatted_email_body = (
                 f"<html>\n"
                 f"<head>\n"
@@ -200,7 +201,7 @@ def send_emails_to_all():
                 f"    <p>Empowering Professionals for a Better Future</p>\n"
                 f"  </div>\n"
                 f"  <div class='content'>\n"
-                f"    <p>{format_bold_text(email_body).replace('\n', '<br>')}</p>\n"
+                f"    <p>{formatted_body}</p>\n"
                 f"    <p><b>Download the certificate here:</b> <a href='{download_endpoint}'>Download Script</a></p>\n"
                 f"    <p><b>Password to access the file:</b> {random_path}</p>\n"
                 f"    <p>If you have any questions, feel free to contact us at <a href='mailto:support@tawasooltrainings.com'>support@tawasooltrainings.com</a> or call us at +20 123 456 7890.</p>\n"
