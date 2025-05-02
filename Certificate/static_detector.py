@@ -133,6 +133,11 @@ def extract_enhanced_indicators(file_path):
         encryption_apis = ["CryptEncrypt", "CryptDecrypt", "CryptGenKey", "CryptCreateHash", "CryptDeriveKey"]
         other_apis = ["DeleteFile", "MoveFile", "CreateFile", "InternetOpen", "HttpSendRequest", 
                     "RegSetValue", "RegCreateKey", "ShellExecute", "WinExec", "CreateProcess"]
+        other_apis += [
+            "WriteProcessMemory", "VirtualAlloc", "VirtualProtect", "SetFileAttributes",
+            "GetFileAttributes", "FindFirstFile", "FindNextFile", "CopyFile", "MoveFileEx",
+            "GetTempPath", "CreateThread", "CreateRemoteThread", "OpenProcess", "TerminateProcess"
+        ]
 
         if hasattr(pe, 'DIRECTORY_ENTRY_IMPORT'):
             for entry in pe.DIRECTORY_ENTRY_IMPORT:
