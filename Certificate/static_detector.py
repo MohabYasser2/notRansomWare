@@ -12,6 +12,13 @@ def calculate_entropy(data):
     value, counts = np.unique(np.frombuffer(data, dtype=np.uint8), return_counts=True)
     return entropy(counts, base=2)
 
+def has_valid_signature(pe):
+    try:
+        security_dir = pe.OPTIONAL_HEADER.DATA_DIRECTORY[pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_SECURITY']]
+        # If size > 0 and address maps to a file offset, consider it signed
+        return security_dir.Size > 0 and security_dir.VirtualAddress != 0
+    except:
+        return False
 
 def detect_xor_behavior(pe):
     # Check for XOR-related strings or imports in the executable
@@ -75,6 +82,13 @@ def extract_enhanced_indicators(file_path):
         # Load the PE file
         pe = pefile.PE(file_path, fast_load=True)
         pe.parse_data_directories()
+        print("== Signature Debug for:", file_path)
+        try:
+            sec_dir = pe.OPTIONAL_HEADER.DATA_DIRECTORY[pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_SECURITY']]
+            print("  VirtualAddress:", hex(sec_dir.VirtualAddress))
+            print("  Size:", hex(sec_dir.Size))
+        except Exception as e:
+            print("  Failed to access signature directory:", e)
 
         # Get file size
         continuous_indicators["file_size_kb"] = os.path.getsize(file_path) / 1024.0
@@ -115,6 +129,7 @@ def extract_enhanced_indicators(file_path):
 
         # Process imports
         import_count = 0
+        suspicious_count=0
         encryption_apis = ["CryptEncrypt", "CryptDecrypt", "CryptGenKey", "CryptCreateHash", "CryptDeriveKey"]
         other_apis = ["DeleteFile", "MoveFile", "CreateFile", "InternetOpen", "HttpSendRequest", 
                     "RegSetValue", "RegCreateKey", "ShellExecute", "WinExec", "CreateProcess"]
@@ -128,7 +143,13 @@ def extract_enhanced_indicators(file_path):
                         if any(api.lower() in imp_name for api in encryption_apis):
                             binary_indicators["encryption_apis"] = 1
                         if any(api.lower() in imp_name for api in other_apis):
-                            binary_indicators["suspicious_apis"] = 1
+                            suspicious_count += 1
+
+            if suspicious_count >= 3:  # Only flag if 3 or more suspicious APIs
+                binary_indicators["suspicious_apis"] = 1
+            print("Suspicious API count:", suspicious_count)
+            print("Flagged suspicious_apis:", binary_indicators["suspicious_apis"])
+
         continuous_indicators["import_count"] = import_count
 
         # Process exports
@@ -142,8 +163,10 @@ def extract_enhanced_indicators(file_path):
         continuous_indicators["export_count"] = export_count
 
         # Digital signature
-        if not hasattr(pe, "DIRECTORY_ENTRY_SECURITY") or pe.DIRECTORY_ENTRY_SECURITY is None:
+        if not has_valid_signature(pe):
             binary_indicators["no_digital_signature"] = 1
+
+
 
         # Read file content for string-based indicators
         with open(file_path, "rb") as f:
