@@ -1,439 +1,516 @@
-from concurrent.futures import ThreadPoolExecutor
-from queue import Queue
-import os.path
-import threading
-import time
-import psutil
-import math
-from pathlib import Path
-from collections import defaultdict
+import os
 import tkinter as tk
-from tkinter import scrolledtext, messagebox, filedialog
-from threading import Thread
-import win32file
-import win32con
+from tkinter import filedialog
+import pefile  # Library for parsing PE files
+from capstone import Cs, CS_ARCH_X86, CS_MODE_32  # Capstone for disassembly
+import re
+from tabulate import tabulate  # For creating formatted tables
+from collections import defaultdict
+import datetime
+import pandas as pd  # For Excel export
 
-# Update WATCH_DIR to ensure it matches the directory used by encryption scripts
-WATCH_DIR = "path_to_encryption_scripts_directory"  # Replace with the actual directory path
-SCORE_THRESHOLD = 15
-LOG_FILE = "detector_log.txt"
-
-# Feature weights
-WEIGHTS = {
-    "rapid_modification": 5,
-    "mass_deletion": 4,
-    "mass_writes": 4,
-    "high_cpu": 3,
-    "encrypted_files": 6,
-    "weird_extensions": 3,
-    "critical_access": 7,
-    "api_hooks": 8,  # Placeholder for future implementation
-    "memory_analysis": 8,  # Placeholder for future implementation
-    "network_traffic": 5,  # Placeholder for future implementation
+# Define boolean flags and their weights
+FLAGS = {
+    "has_suspicious_sections": 5,
+    "has_high_entropy": 4,
+    "has_suspicious_imports": 6,
+    "has_large_code_section": 3,
+    "has_ransom_strings": 7,  # New flag for ransom-related strings
+    "no_digital_signature": 2,  # New flag for missing digital signature
+    "uses_encryption_apis": 5,  # New flag for encryption-related APIs
+    "uses_other_apis": 1,  # New flag for other APIs
+    "uses_suspicious_functions": 6,  # New flag for suspicious functions
+    "uses_crypto_dlls": 3,  # New flag for crypto DLLs
+    "uses_file_system_dlls": 2,  # New flag for file system DLLs
+    "uses_internet_dlls": 4,  # New flag for internet DLLs
+    "has_hardcoded_ips": 3,  # New flag for hardcoded IPs
+    "has_hardcoded_urls": 3,  # New flag for hardcoded URLs
+    "has_crypto_constants": 5,  # New flag for detecting RSA/AES constants
+    "has_hardcoded_commands": 4,  # New flag for hardcoded commands
+    "has_hardcoded_paths": 3,  # New flag for hardcoded paths
 }
 
-# Extensions considered suspicious
-SUSPICIOUS_EXTENSIONS = {".fun", ".dog", ".wcry", ".encrypted"}
+THRESHOLD = 10  # Threshold score to classify as ransomware
 
-# For tracking process scores and file activities
-process_scores = defaultdict(int)
-file_activity = defaultdict(list)
+def browse_folder():
+    """Open a dialog to select a folder."""
+    root = tk.Tk()
+    root.withdraw()  # Hide the root window
+    folder_path = filedialog.askdirectory(title="Select Folder")
+    return folder_path
 
-# Cache for open files
-open_files_cache = {}
-event_queue = Queue()
-executor = ThreadPoolExecutor(max_workers=5)
-
-def log_to_file(message):
-    with open(LOG_FILE, "a", encoding="utf-8") as log_file:
-        log_file.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - {message}\n")
-
-def calculate_entropy(data):
-    if not data:
-        return 0
-    freq = [0] * 256
-    for byte in data:
-        freq[byte] += 1
-    entropy = 0
-    for count in freq:
-        if count == 0:
-            continue
-        p = count / len(data)
-        entropy -= p * math.log2(p)
-    return entropy
-
-def read_entropy(filepath, max_bytes=1048576):
-    try:
-        with open(filepath, "rb") as f:
-            return calculate_entropy(f.read(max_bytes))
-    except:
-        return 0
-
-# Dictionary to track historical file access
-historical_file_access = defaultdict(set)
-last_access_time = defaultdict(float)
-
-def update_open_files_cache():
-    while True:
-        new_cache = {}
-        for proc in psutil.process_iter(['pid', 'name']):
-            try:
-                file_paths = [f.path for f in proc.open_files()]
-                normalized_files = [os.path.abspath(os.path.normcase(f)) for f in file_paths]
-                new_cache[proc.pid] = normalized_files
-                
-                # Update historical access records
-                for f in normalized_files:
-                    historical_file_access[f].add(proc.pid)
-                    last_access_time[f] = time.time()
-            except Exception:
-                continue
-        
-        # Clean up historical records older than 30 seconds
-        current_time = time.time()
-        expired_files = [f for f, t in last_access_time.items() if current_time - t > 30]
-        for f in expired_files:
-            if f in historical_file_access:
-                del historical_file_access[f]
-                del last_access_time[f]
-        
-        global open_files_cache
-        open_files_cache = new_cache
-        time.sleep(0.2)   # Faster refresh for better detection
-
-def find_suspicious_process(filepath):
-    # Normalize the incoming filepath
-    normalized_fp = os.path.abspath(os.path.normcase(filepath))
-    
-    # Method 1: Check current open files cache
-    for pid, files in open_files_cache.items():
-        if normalized_fp in files:
-            try:
-                return psutil.Process(pid)
-            except psutil.NoSuchProcess:
-                continue
-    
-    # Method 2: Check historical file access
-    if normalized_fp in historical_file_access and historical_file_access[normalized_fp]:
-        recent_pids = list(historical_file_access[normalized_fp])
-        for pid in sorted(recent_pids, reverse=True):  # Try most recent first
-            try:
-                proc = psutil.Process(pid)
-                log_to_file(f"[INFO] Found process from historical access: PID={pid}, Name={proc.name()}")
-                return proc
-            except psutil.NoSuchProcess:
-                continue
-    
-    # Method 3: Check for partial path matches (handle path variants)
-    filename = os.path.basename(normalized_fp)
-    for pid, files in open_files_cache.items():
-        for file_path in files:
-            if filename in file_path:
-                try:
-                    proc = psutil.Process(pid)
-                    log_to_file(f"[INFO] Found process by partial path match: PID={pid}, Name={proc.name()}")
-                    return proc
-                except psutil.NoSuchProcess:
+def find_executables(folder):
+    """Recursively find all executable files in the folder and subfolders."""
+    executables = []
+    for root, _, files in os.walk(folder):
+        for file in files:
+            if file.endswith(('.exe', '.dll', '.sys')):  # Include other formats
+                file_path = os.path.join(root, file)
+                # Skip the detector script itself
+                if os.path.abspath(file_path) == os.path.abspath(__file__):
                     continue
-    
-    log_to_file(f"[DEBUG] File not in open_files_cache: {filepath}")
+                executables.append(file_path)
+    return executables
 
-    # fallback: pick process started within last 5 seconds
-    now = time.time()
-    candidates = []
-    for proc in psutil.process_iter(['pid','name','create_time']):
-        try:
-            if now - proc.create_time() <= 5:
-                candidates.append(proc)
-        except Exception:
-            continue
+def analyze_executable(pe):
+    """Analyze the executable and return a dictionary of boolean flags."""
+    ransomware_words = ["ransom", "decrypt", "payment", "locked", "encrypt", "extortion", "wallet" ,"pay"]
+    encryption_apis = ["CryptEncrypt", "CryptDecrypt", "CryptGenKey", "CryptCreateHash", "CryptDeriveKey"]
+    other_apis = ["DeleteFile", "MoveFile", "CreateFile", "InternetOpen", "HttpSendRequest", 
+                  "RegSetValue", "RegCreateKey", "ShellExecute", "WinExec", "CreateProcess"]
+   
+    memory_image = pe.get_memory_mapped_image().decode(errors="ignore").lower()
+    detected_words = [word for word in ransomware_words if word in memory_image]
+    detected_count = sum(memory_image.count(word) for word in ransomware_words)  # Count occurrences of words
+    distinct_detected_count = len(set(detected_words))  # Count distinct words
 
-    if candidates:
-        # choose the newest process
-        chosen = max(candidates, key=lambda p: p.create_time())
-        delay = now - chosen.create_time()
-        log_to_file(f"[DEBUG] Fallback by create_time: PID={chosen.pid}, EXE={chosen.name()}, started {delay:.2f}s ago")
-        return chosen
+    RANSOM_WORDS_THRESHOLD = 4  # Threshold for triggering the ransom strings flag
+    OTHER_APIS_THRESHOLD = 3  # Threshold for triggering the other APIs flag
+    DLL_THRESHOLD = 2  # Threshold for triggering DLL-related flags
+    IP_URL_THRESHOLD = 1  # Threshold for triggering the hardcoded IP/URL flag
 
-    return None
+    # Patterns for detecting RSA public key blobs and AES S-box constants
+    rsa_key_pattern = rb'\x30\x82[\x00-\xFF]{2}\x02\x82[\x00-\xFF]{2}\x00[\x00-\xFF]{128,}'  # ASN.1 DER-encoded RSA key
+    aes_sbox_pattern = rb'\x63\x7c\x77\x7b\xf2\x6b\x6f\xc5\x30\x01\x67\x2b\xfe\xd7\xab\x76'  # AES S-box constants
 
-# Async entropy calculation
-def async_entropy_check(filepath, callback):
-    def task():
-        entropy = read_entropy(filepath, max_bytes=8192)  # Read only first 8 KB
-        callback(filepath, entropy)
-    executor.submit(task)
+    # Search for RSA keys and AES S-box constants in the memory-mapped image
+    rsa_keys = re.findall(rsa_key_pattern, memory_image.encode(errors="ignore"))
+    aes_sboxes = re.findall(aes_sbox_pattern, memory_image.encode(errors="ignore"))
 
-# Process events from the queue
-def event_processor():
-    while True:
-        try:
-            event = event_queue.get()
-            process_event(*event)
-        except Exception as e:
-            log_to_file(f"[ERROR] Event processing error: {e}")
+    # Use distinct counts for RSA keys and AES S-box constants
+    distinct_rsa_key_count = len(set(rsa_keys))
+    distinct_aes_sbox_count = len(set(aes_sboxes))
 
-# Function to get all child processes of a given process
-def get_child_processes(parent_pid):
+    # Threshold for RSA/AES detection
+    CRYPTO_CONSTANTS_THRESHOLD = 1
+
+    # Patterns for detecting hardcoded commands and paths
+    hardcoded_commands = [
+        "vssadmin delete shadows", 
+        "bcdedit /set {default} recoveryenabled no", 
+        "cipher /w",
+        "wbadmin delete catalog",  # Deletes backup catalog
+        "vssadmin resize shadowstorage",  # Modifies shadow storage
+        "schtasks /delete /tn",  # Deletes scheduled tasks
+        "taskkill /f /im",  # Forcefully kills processes
+        "icacls",  # Modifies file permissions
+        "takeown /f",  # Takes ownership of files
+        "attrib +h +s",  # Hides files
+        "del /f /q",  # Deletes files forcefully and quietly
+        "net stop",  # Stops services
+        "netsh advfirewall set allprofiles state off"  # Disables firewall
+    ]
+    # Updated regex pattern for detecting valid file paths
+    path_pattern = r'([a-zA-Z]:\\(?:[a-zA-Z0-9._\-\\ ]+\\)*[a-zA-Z0-9._\- ]+)|(\.\.?\\(?:[a-zA-Z0-9._\-\\ ]+\\)*[a-zA-Z0-9._\- ]+)'
+
+    # Search for hardcoded commands and paths in the memory-mapped image
+    detected_commands = [cmd for cmd in hardcoded_commands if cmd in memory_image]
+    detected_paths = re.findall(path_pattern, memory_image)
+
+    # Use distinct counts for commands and paths
+    distinct_command_count = len(set(detected_commands))
+    distinct_path_count = len(set(path[0] or path[1] for path in detected_paths if path[0] or path[1]))
+
+    # Threshold for hardcoded commands and paths
+    COMMANDS_THRESHOLD = 1
+    PATHS_THRESHOLD = 1
+
+    # Check for digital signature using the provided method
     try:
-        parent = psutil.Process(parent_pid)
-        children = parent.children(recursive=True)
-        return children
-    except (psutil.NoSuchProcess, psutil.AccessDenied):
-        return []
-
-def log_process_tree(parent_pid):
-    """Log the process tree starting from parent_pid"""
-    try:
-        parent = psutil.Process(parent_pid)
-        log_to_file(f"[PROCESS] Parent: PID={parent_pid}, Name={parent.name()}, Exe={parent.exe()}")
-        
-        children = get_child_processes(parent_pid)
-        if children:
-            log_to_file(f"[PROCESS] Found {len(children)} child processes for PID {parent_pid}")
-            for child in children:
-                try:
-                    log_to_file(f"[PROCESS] Child: PID={child.pid}, Name={child.name()}, Exe={child.exe()}, Parent={parent_pid}")
-                except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-                    log_to_file(f"[ERROR] Failed to log child process {child.pid}: {e}")
-    except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-        log_to_file(f"[ERROR] Failed to log process tree for PID {parent_pid}: {e}")
-
-def handle_flag(proc, reason):
-    try:
-        print(f"[ALERT] PID: {proc.pid}, EXE: {proc.exe()} flagged as malicious. Reason: {reason}")
-        log_to_file(f"[ALERT] PID: {proc.pid}, EXE: {proc.exe()} flagged as malicious. Reason: {reason}")
-        
-        # Log the process tree before termination
-        log_process_tree(proc.pid)
-        
-        # Terminate children first (in reverse order of creation to properly handle process hierarchies)
-        children = get_child_processes(proc.pid)
-        if children:
-            log_to_file(f"[ACTION] Terminating {len(children)} child processes of PID {proc.pid}")
-            for child in reversed(children):
-                try:
-                    child_name = child.name()
-                    child_pid = child.pid
-                    child.terminate()
-                    log_to_file(f"[ACTION] Child process {child_pid} ({child_name}) terminated.")
-                except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-                    log_to_file(f"[ERROR] Failed to terminate child process {child.pid}: {e}")
-        
-        # Terminate the parent process
-        proc.terminate()
-        proc.wait(timeout=2)
-        print(f"[ACTION] Process {proc.pid} terminated.")
-        log_to_file(f"[ACTION] Process {proc.pid} terminated.")
+        sec_dir = pe.OPTIONAL_HEADER.DATA_DIRECTORY[pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_SECURITY']]
+        has_digital_signature = sec_dir.VirtualAddress != 0 and sec_dir.Size != 0
     except Exception as e:
-        print(f"[ERROR] Failed to terminate process {proc.pid}: {e}")
-        log_to_file(f"[ERROR] Failed to terminate process {proc.pid}: {e}")
+        has_digital_signature = False
 
-def monitor_cpu_usage():
-    for proc in psutil.process_iter(['pid', 'cpu_percent', 'name']):
-        try:
-            cpu_usage = proc.cpu_percent(interval=0.5)  # Reduced interval for faster checks
-            if cpu_usage > 80:  # High CPU usage threshold
-                if process_scores[proc.pid] % WEIGHTS["high_cpu"] != 0:  # Avoid redundant logging
-                    process_scores[proc.pid] += WEIGHTS["high_cpu"]
-                    log_to_file(f"[INFO] High CPU usage detected: PID={proc.pid}, EXE={proc.exe()}, CPU={cpu_usage}%, Score={process_scores[proc.pid]}")
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            continue
+    # Check for encryption-related APIs (case-insensitive matching)
+    detected_encryption_apis = []
+    detected_other_apis = []
+    try:
+        for entry in getattr(pe, "DIRECTORY_ENTRY_IMPORT", []):
+            for imp in entry.imports:
+                if imp.name:
+                    api_name = imp.name.decode()
+                    if api_name.lower() in [api.lower() for api in encryption_apis]:
+                        detected_encryption_apis.append(api_name)
+                    if api_name.lower() in [api.lower() for api in other_apis]:
+                        detected_other_apis.append(api_name)
+    except Exception as e:
+        pass
 
-def monitor_directory():
-    global WATCH_DIR
-    ACTIONS = {
-        1: "Created",
-        2: "Deleted",
-        3: "Updated",
-        4: "Renamed from",
-        5: "Renamed to"
+    # Check for encryption-related APIs in memory (fallback)
+    for api in encryption_apis:
+        if api.lower() in memory_image:
+            detected_encryption_apis.append(api)
+
+    # Check for other APIs in memory (fallback)
+    for api in other_apis:
+        if api.lower() in memory_image:
+            detected_other_apis.append(api)
+
+    # Use distinct counts for other APIs
+    distinct_other_apis_count = len(set(detected_other_apis))
+
+    dll_categories = {
+        "crypto_dlls": ["bcrypt.dll", "ncrypt.dll", "crypt32.dll", "advapi32.dll", "wincrypt.h"],
+        "file_system_dlls": ["kernel32.dll", "shell32.dll", "shlwapi.dll", "ntdll.dll", "ole32.dll"],
+        "internet_dlls": ["wininet.dll", "winhttp.dll", "ws2_32.dll", "urlmon.dll", "httpapi.dll", "dnsapi.dll"]
     }
 
-    FILE_LIST_DIRECTORY = 0x0001
-    h_directory = win32file.CreateFile(
-        WATCH_DIR,
-        FILE_LIST_DIRECTORY,
-        win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
-        None,
-        win32con.OPEN_EXISTING,
-        win32con.FILE_FLAG_BACKUP_SEMANTICS,
-        None
-    )
+    detected_dlls = {
+        "crypto_dlls": [],
+        "file_system_dlls": [],
+        "internet_dlls": []
+    }
 
-    while True:
-        try:
-            results = win32file.ReadDirectoryChangesW(
-                h_directory,
-                8192,
-                True,
-                win32con.FILE_NOTIFY_CHANGE_FILE_NAME |
-                win32con.FILE_NOTIFY_CHANGE_DIR_NAME |
-                win32con.FILE_NOTIFY_CHANGE_ATTRIBUTES |
-                win32con.FILE_NOTIFY_CHANGE_SIZE |
-                win32con.FILE_NOTIFY_CHANGE_LAST_WRITE |
-                win32con.FILE_NOTIFY_CHANGE_SECURITY,
-                None,
-                None
-            )
-            for action, file in results:
-                full_path = os.path.join(WATCH_DIR, file)
-                event_type = ACTIONS.get(action, "Unknown")
-                event_queue.put((event_type, full_path))  # Add to queue
-        except Exception as e:
-            log_to_file(f"[ERROR] Directory monitoring error: {e}")
+    try:
+        for entry in getattr(pe, "DIRECTORY_ENTRY_IMPORT", []):
+            dll_name = entry.dll.decode().lower()
+            for category, dll_list in dll_categories.items():
+                if dll_name in dll_list:
+                    detected_dlls[category].append(dll_name)
+    except Exception as e:
+        pass
 
-def process_event(event_type, filepath):
-    proc = find_suspicious_process(filepath)
-    if not proc:
-        log_to_file(f"[WARNING] No process identified for event '{event_type}', File: {filepath}")
+    # Use distinct counts for DLLs
+    distinct_crypto_dlls_count = len(set(detected_dlls["crypto_dlls"]))
+    distinct_file_system_dlls_count = len(set(detected_dlls["file_system_dlls"]))
+    distinct_internet_dlls_count = len(set(detected_dlls["internet_dlls"]))
+
+    # Categorize suspicious functions
+    suspicious_function_categories = {
+        "internet_access": {
+            "functions": ["InternetOpen", "InternetConnect", "HttpOpenRequest", "HttpSendRequest",
+                          "WinHttpOpen", "WinHttpConnect", "WinHttpSendRequest", "socket", "connect", "send", "recv"],
+            "threshold": 3,
+            "weight": 4
+        },
+        "file_operations": {
+            "functions": ["CreateFile", "ReadFile", "WriteFile", "DeleteFile", "RemoveDirectory", "CopyFile"],
+            "threshold": 3,
+            "weight": 3
+        },
+        "process_operations": {
+            "functions": ["OpenProcess", "VirtualAlloc", "VirtualAllocEx", "WriteProcessMemory", "ReadProcessMemory",
+                          "CreateRemoteThread", "AdjustTokenPrivileges", "OpenProcessToken"],
+            "threshold": 2,
+            "weight": 5
+        },
+        "anti_debugging": {
+            "functions": ["IsDebuggerPresent", "CheckRemoteDebuggerPresent", "NtQueryInformationProcess",
+                          "GetTickCount", "QueryPerformanceCounter", "RDTSC", "NtDelayExecution"],
+            "threshold": 2,
+            "weight": 3
+        },
+        "service_operations": {
+            "functions": ["CreateService", "OpenService", "StartService"],
+            "threshold": 1,
+            "weight": 2
+        }
+    }
+
+    detected_suspicious_functions = {category: [] for category in suspicious_function_categories}
+
+    try:
+        for entry in getattr(pe, "DIRECTORY_ENTRY_IMPORT", []):
+            for imp in entry.imports:
+                if imp.name:
+                    api_name = imp.name.decode()
+                    # Check each category
+                    for category, details in suspicious_function_categories.items():
+                        if api_name.lower() in [func.lower() for func in details["functions"]]:
+                            detected_suspicious_functions[category].append(api_name)
+    except Exception as e:
+        pass
+
+    # Check for suspicious functions in memory (fallback)
+    for category, details in suspicious_function_categories.items():
+        for func in details["functions"]:
+            if func.lower() in memory_image:
+                detected_suspicious_functions[category].append(func)
+
+    # Calculate distinct counts for each category
+    distinct_suspicious_function_counts = {
+        category: len(set(functions))
+        for category, functions in detected_suspicious_functions.items()
+    }
+
+    ip_pattern = r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'
+    url_pattern = r'https?://[^\s/$.?#].[^\s]*'
+
+    # Search for IP addresses and URLs in the memory-mapped image
+    hardcoded_ips = re.findall(ip_pattern, memory_image)
+    hardcoded_urls = re.findall(url_pattern, memory_image)
+
+    # Filter out Microsoft URLs
+    microsoft_domains = ["microsoft.com", "windows.net", "msft.net"]
+    filtered_urls = [
+        url for url in hardcoded_urls
+        if not any(domain in url for domain in microsoft_domains)
+    ]
+
+    # Use distinct counts for IPs and filtered URLs
+    distinct_ip_count = len(set(hardcoded_ips))
+    distinct_url_count = len(set(filtered_urls))
+
+    flags = {
+        "has_suspicious_sections": any(
+            section.Name.decode().strip() in [".text", ".data", ".rsrc"] and section.SizeOfRawData == 0
+            for section in pe.sections
+        ),
+        "has_high_entropy": any(
+            section.get_entropy() > 7.9 for section in pe.sections
+        ),
+        "has_suspicious_imports": any(
+            imp.name and imp.name.decode() in ["CreateFileA", "WriteFile", "DeleteFileA"]
+            for entry in getattr(pe, "DIRECTORY_ENTRY_IMPORT", [])
+            for imp in entry.imports
+        ),
+        "has_large_code_section": any(
+            section.Name.decode().strip() == ".text" and section.Misc_VirtualSize > 1000000
+            for section in pe.sections
+        ),
+        "has_ransom_strings": distinct_detected_count >= RANSOM_WORDS_THRESHOLD,  # Trigger flag if count exceeds threshold
+        "no_digital_signature": not has_digital_signature,  # Trigger flag if no digital signature
+        "uses_encryption_apis": bool(detected_encryption_apis),  # Trigger flag if encryption APIs are detected
+        "uses_other_apis": distinct_other_apis_count >= OTHER_APIS_THRESHOLD,  # Trigger flag if distinct count exceeds threshold
+        "uses_crypto_dlls": distinct_crypto_dlls_count >= DLL_THRESHOLD,
+        "uses_file_system_dlls": distinct_file_system_dlls_count >= DLL_THRESHOLD,
+        "uses_internet_dlls": distinct_internet_dlls_count >= DLL_THRESHOLD,
+        "has_hardcoded_ips": distinct_ip_count >= IP_URL_THRESHOLD,
+        "has_hardcoded_urls": distinct_url_count >= IP_URL_THRESHOLD,
+        "has_crypto_constants": distinct_rsa_key_count + distinct_aes_sbox_count >= CRYPTO_CONSTANTS_THRESHOLD,
+        "has_hardcoded_commands": distinct_command_count >= COMMANDS_THRESHOLD,
+        "has_hardcoded_paths": distinct_path_count >= PATHS_THRESHOLD,
+    }
+    for category, details in suspicious_function_categories.items():
+        flags[f"uses_{category}_functions"] = distinct_suspicious_function_counts[category] >= details["threshold"]
+
+    # Collect counts for the counts table
+    counts = {
+        "ransom_words": distinct_detected_count,
+        "encryption_apis": len(set(detected_encryption_apis)),
+        "other_apis": distinct_other_apis_count,
+        "crypto_dlls": distinct_crypto_dlls_count,
+        "file_system_dlls": distinct_file_system_dlls_count,
+        "internet_dlls": distinct_internet_dlls_count,
+        "hardcoded_ips": distinct_ip_count,
+        "hardcoded_urls": distinct_url_count,
+        "rsa_keys": distinct_rsa_key_count,
+        "aes_constants": distinct_aes_sbox_count,
+        "hardcoded_commands": distinct_command_count,
+        "hardcoded_paths": distinct_path_count,
+    }
+    
+    # Add suspicious function counts
+    for category, count in distinct_suspicious_function_counts.items():
+        counts[f"{category}_functions"] = count
+
+    return flags, counts
+
+def calculate_score(flags):
+    """Calculate the score based on the flags and their weights."""
+    score = sum(weight for flag, weight in FLAGS.items() if flags.get(flag, False))
+    return score
+
+def decompile_executable(file_path):
+    """Decompile an executable, analyze it, and calculate its score."""
+    try:
+        pe = pefile.PE(file_path)
+        
+        # Analyze the executable
+        flags, counts = analyze_executable(pe)
+        
+        # Calculate the score
+        score = calculate_score(flags)
+        
+        # Return the results
+        is_ransomware = score >= THRESHOLD
+        return {
+            "file_path": file_path,
+            "flags": flags,
+            "counts": counts,
+            "score": score,
+            "is_ransomware": is_ransomware
+        }
+    except Exception as e:
+        print(f"Failed to decompile {file_path}: {e}")
+        return None
+
+def display_results(results):
+    """Display results in table format and save to log files and Excel."""
+    if not results:
+        print("No results to display.")
+        return
+    
+    # Create timestamp for output files
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    
+    # Use ASCII characters for file output to avoid encoding issues
+    true_mark = "YES"
+    false_mark = "NO"
+    
+    # Prepare data for flag table (for display)
+    flag_headers = ["File"]
+    flag_headers.extend(FLAGS.keys())
+    flag_headers.append("Score")
+    flag_headers.append("Is Ransomware")
+    
+    # For console display (can use Unicode)
+    flag_rows_display = []
+    # For file output (ASCII only)
+    flag_rows_file = []
+    # For Excel export (boolean values)
+    excel_flags_data = []
+    
+    for result in results:
+        if result is None:
+            continue
+        
+        # For display with Unicode symbols
+        row_display = [os.path.basename(result["file_path"])]
+        for flag in FLAGS.keys():
+            row_display.append("✓" if result["flags"].get(flag, False) else "✗")
+        row_display.append(result["score"])
+        row_display.append("YES" if result["is_ransomware"] else "NO")
+        flag_rows_display.append(row_display)
+        
+        # For file output with ASCII-only
+        row_file = [os.path.basename(result["file_path"])]
+        for flag in FLAGS.keys():
+            row_file.append(true_mark if result["flags"].get(flag, False) else false_mark)
+        row_file.append(result["score"])
+        row_file.append("YES" if result["is_ransomware"] else "NO")
+        flag_rows_file.append(row_file)
+        
+        # For Excel with actual boolean values and numbers
+        excel_row = {
+            "File": os.path.basename(result["file_path"]),
+            "Score": result["score"],
+            "Is Ransomware": result["is_ransomware"]
+        }
+        # Add all flags with boolean values
+        for flag, value in result["flags"].items():
+            excel_row[flag] = value
+        excel_flags_data.append(excel_row)
+    
+    # Prepare data for counts table
+    excel_counts_data = []
+    if results[0] and "counts" in results[0]:
+        count_headers = ["File"]
+        count_headers.extend(results[0]["counts"].keys())
+        
+        count_rows = []
+        for result in results:
+            if result is None:
+                continue
+                
+            row = [os.path.basename(result["file_path"])]
+            for count_key in results[0]["counts"].keys():
+                row.append(result["counts"].get(count_key, 0))
+            count_rows.append(row)
+            
+            # For Excel with structured data
+            excel_row = {"File": os.path.basename(result["file_path"])}
+            for count_key, count_value in result["counts"].items():
+                excel_row[count_key] = count_value
+            excel_counts_data.append(excel_row)
+    
+    # Generate tables
+    flags_table_display = tabulate(flag_rows_display, flag_headers, tablefmt="grid")
+    flags_table_file = tabulate(flag_rows_file, flag_headers, tablefmt="grid")
+    counts_table = tabulate(count_rows, count_headers, tablefmt="grid")
+    
+    # Display tables in console (can use Unicode)
+    print("\n--- ANALYSIS FLAGS ---")
+    print(flags_table_display)
+    
+    print("\n--- DETECTED COUNTS ---")
+    print(counts_table)
+    
+    # Summary
+    ransomware_count = sum(1 for result in results if result and result["is_ransomware"])
+    summary_text = f"\nSummary: {ransomware_count} out of {len([r for r in results if r is not None])} files classified as ransomware."
+    print(summary_text)
+    
+    # Save to log files with explicit UTF-8 encoding
+    flags_log_path = os.path.join(log_dir, f"analysis_flags_{timestamp}.txt")
+    counts_log_path = os.path.join(log_dir, f"detection_counts_{timestamp}.txt")
+    
+    try:
+        # Use UTF-8 encoding for file writing
+        with open(flags_log_path, "w", encoding="utf-8") as f:
+            f.write("ANALYSIS FLAGS\n")
+            f.write(flags_table_display)
+            f.write(f"\n{summary_text}")
+    except UnicodeEncodeError:
+        # Fallback to ASCII version if UTF-8 fails
+        with open(flags_log_path, "w") as f:
+            f.write("ANALYSIS FLAGS\n")
+            f.write(flags_table_file)
+            f.write(f"\n{summary_text}")
+    
+    with open(counts_log_path, "w") as f:
+        f.write("DETECTED COUNTS\n")
+        f.write(counts_table)
+    
+    # Create Excel file with two sheets
+    excel_path = os.path.join(log_dir, f"ransomware_analysis_{timestamp}.xlsx")
+    
+    try:
+        # Convert data to pandas DataFrames
+        flags_df = pd.DataFrame(excel_flags_data)
+        counts_df = pd.DataFrame(excel_counts_data)
+        
+        # Create Excel writer
+        with pd.ExcelWriter(excel_path) as writer:
+            # Write each dataframe to a different sheet
+            flags_df.to_excel(writer, sheet_name='Analysis Flags', index=False)
+            counts_df.to_excel(writer, sheet_name='Detection Counts', index=False)
+            
+            # Auto-adjust columns' width
+            for sheet in writer.sheets:
+                worksheet = writer.sheets[sheet]
+                for i, col in enumerate(flags_df.columns if sheet == 'Analysis Flags' else counts_df.columns):
+                    # Find the maximum length of the column
+                    max_len = max(
+                        flags_df[col].astype(str).map(len).max() if sheet == 'Analysis Flags' else counts_df[col].astype(str).map(len).max(),
+                        len(str(col))
+                    ) + 2  # Add a little extra space
+                    # Set the column width
+                    worksheet.column_dimensions[chr(65 + i)].width = max_len
+        
+        print(f"\nLogs saved to:\n- {flags_log_path}\n- {counts_log_path}\n- {excel_path}")
+    except Exception as e:
+        print(f"\nFailed to create Excel file: {e}")
+        print(f"\nText logs saved to:\n- {flags_log_path}\n- {counts_log_path}")
+
+def process_folder():
+    """Main function to browse folder, find executables, and decompile them."""
+    folder = browse_folder()
+    if not folder:
+        print("No folder selected.")
         return
 
-    # Check and log any child processes
-    children = get_child_processes(proc.pid)
-    if children:
-        process_scores[proc.pid] += len(children)  # Increase score based on number of children
-        log_to_file(f"[INFO] Process {proc.pid} ({proc.name()}) has {len(children)} child processes - increasing score")
-        # Log detailed information about each child process
-        for child in children:
-            try:
-                log_to_file(f"[INFO] Child process: PID={child.pid}, Name={child.name()}, Exe={child.exe()}")
-            except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-                log_to_file(f"[ERROR] Failed to access child process info: {e}")
-
-    # Rapid file modification
-    now = time.time()
-    file_activity[filepath].append(now)
-    file_activity[filepath] = [t for t in file_activity[filepath] if now - t < 5]  # 5-second window
-    if len(file_activity[filepath]) > 5:  # Threshold for rapid modifications
-        process_scores[proc.pid] += WEIGHTS["rapid_modification"]
-
-    # Mass deletion
-    if event_type == "Deleted":
-        process_scores[proc.pid] += WEIGHTS["mass_deletion"]
-
-    # Mass writes
-    if event_type == "Created":
-        process_scores[proc.pid] += WEIGHTS["mass_writes"]
-
-    # Encrypted files (async entropy check)
-    if event_type == "Created":
-        async_entropy_check(filepath, lambda fp, ent: (
-            process_scores.update({proc.pid: process_scores[proc.pid] + WEIGHTS["encrypted_files"]})
-            if ent > 7.0 else None
-        ))
-
-    # Weird extensions
-    if Path(filepath).suffix in SUSPICIOUS_EXTENSIONS:
-        process_scores[proc.pid] += WEIGHTS["weird_extensions"]
-
-    # Log and print process score
-    log_to_file(f"[INFO] Event: {event_type}, File: {filepath}, PID: {proc.pid}, EXE: {proc.exe()}, Score: {process_scores[proc.pid]}")
-
-    # Flag and terminate process if score exceeds threshold
-    if process_scores[proc.pid] >= SCORE_THRESHOLD:
-        handle_flag(proc, "Score threshold exceeded")
-
-class BehaviorDetectorUI:
-    def __init__(self, root):
-        global WATCH_DIR
-        self.root = root
-        self.root.title("Behavior Detector")
-        self.monitoring = False
-
-        # UI Components
-        self.log_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=80, height=20)
-        self.log_area.pack(padx=10, pady=10)
-
-        self.start_button = tk.Button(root, text="Start Monitoring", command=self.start_monitoring)
-        self.start_button.pack(side=tk.LEFT, padx=10, pady=10)
-
-        self.stop_button = tk.Button(root, text="Stop Monitoring", command=self.stop_monitoring, state=tk.DISABLED)
-        self.stop_button.pack(side=tk.LEFT, padx=10, pady=10)
-
-        self.select_dir_button = tk.Button(root, text="Select Directory", command=self.select_directory)
-        self.select_dir_button.pack(side=tk.LEFT, padx=10, pady=10)
-
-        self.view_logs_button = tk.Button(root, text="View Logs", command=self.view_logs)
-        self.view_logs_button.pack(side=tk.LEFT, padx=10, pady=10)
-
-        self.clear_logs_button = tk.Button(root, text="Clear Logs", command=self.clear_logs)
-        self.clear_logs_button.pack(side=tk.LEFT, padx=10, pady=10)
-
-        self.close_button = tk.Button(root, text="Close", command=self.close_app)
-        self.close_button.pack(side=tk.RIGHT, padx=10, pady=10)
-
-        self.log_message(f"[INFO] Watching directory: {WATCH_DIR}")
-
-    def log_message(self, message):
-        self.log_area.insert(tk.END, message + "\n")
-        self.log_area.see(tk.END)
-
-    def select_directory(self):
-        global WATCH_DIR
-        selected_dir = filedialog.askdirectory()
-        if selected_dir:
-            WATCH_DIR = selected_dir
-            self.log_message(f"[INFO] Watching directory changed to: {WATCH_DIR}")
-
-    def start_monitoring(self):
-        if not self.monitoring:
-            self.monitoring = True
-            self.start_button.config(state=tk.DISABLED)
-            self.stop_button.config(state=tk.NORMAL)
-            self.log_message("[INFO] Monitoring started.")
-            Thread(target=monitor_directory, daemon=True).start()
-            Thread(target=self.cpu_monitor_thread, daemon=True).start()
-
-    def stop_monitoring(self):
-        if self.monitoring:
-            self.monitoring = False
-            self.start_button.config(state=tk.NORMAL)
-            self.stop_button.config(state=tk.DISABLED)
-            self.log_message("[INFO] Monitoring stopped.")
-
-    def view_logs(self):
-        if os.path.exists(LOG_FILE):
-            with open(LOG_FILE, "r", encoding="utf-8") as log_file:
-                logs = log_file.read()
-            log_window = tk.Toplevel(self.root)
-            log_window.title("Logs")
-            log_text = scrolledtext.ScrolledText(log_window, wrap=tk.WORD, width=80, height=20)
-            log_text.insert(tk.END, logs)
-            log_text.pack(padx=10, pady=10)
-            log_text.config(state=tk.DISABLED)
-        else:
-            messagebox.showinfo("Logs", "No logs available.")
-
-    def clear_logs(self):
-        if os.path.exists(LOG_FILE):
-            os.remove(LOG_FILE)
-            self.log_message("[INFO] Logs cleared.")
-        else:
-            self.log_message("[INFO] No logs to clear.")
-
-    def close_app(self):
-        if self.monitoring:
-            self.stop_monitoring()
-        self.root.destroy()
-
-    def cpu_monitor_thread(self):
-        while self.monitoring:
-            monitor_cpu_usage()
-            time.sleep(1)
-
-# Start background threads
-def start_background_threads():
-    threading.Thread(target=update_open_files_cache, daemon=True).start()
-    threading.Thread(target=event_processor, daemon=True).start()
-
-def run_ui():
-    if not os.path.exists(WATCH_DIR):
-        os.makedirs(WATCH_DIR)
-    start_background_threads()
-    root = tk.Tk()
-    app = BehaviorDetectorUI(root)
-    root.mainloop()
+    executables = find_executables(folder)
+    if not executables:
+        print("No executables found in the selected folder.")
+        return
+    
+    print(f"Found {len(executables)} executable(s). Analyzing...")
+    
+    # Collect results for all executables
+    results = []
+    for exe in executables:
+        print(f"Analyzing: {os.path.basename(exe)}...")
+        result = decompile_executable(exe)
+        results.append(result)
+    
+    # Display results in table format
+    display_results(results)
 
 if __name__ == "__main__":
-    run_ui()
+    process_folder()
+
+
