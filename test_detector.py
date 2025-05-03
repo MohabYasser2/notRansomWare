@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, ttk, messagebox  # Add ttk for progress bar and messagebox for alerts
 import pefile  # Library for parsing PE files
 from capstone import Cs, CS_ARCH_X86, CS_MODE_32  # Capstone for disassembly
 import re
@@ -9,7 +9,9 @@ from collections import defaultdict
 import datetime
 import pandas as pd  # For Excel export
 import yara  # Add YARA library for rule-based detection
+from tqdm import tqdm  # Add tqdm for the loading bar
 
+THRESHOLD = 1551  # New threshold to classify a file as ransomware based on its score
 # Define boolean flags and their weights
 FLAGS = {
     "has_suspicious_sections": 150,   # Increased weight to 150
@@ -18,7 +20,7 @@ FLAGS = {
     "has_large_code_section": 125,     # Increased to 125
     "has_ransom_strings": 1000,        # Significantly increased to 1000
     "no_digital_signature": 250,       # Increased to 250
-    "uses_encryption_apis": 1000,      # Increased to 1000 for strong detection
+    "uses_encryption_apis": THRESHOLD,      # Increased to 1000 for strong detection
     "uses_other_apis": 100,            # Increased to 200
     "uses_crypto_dlls": 500,           # Increased to 500
     "uses_file_system_dlls": 100,      # Increased to 100
@@ -28,16 +30,12 @@ FLAGS = {
     "has_crypto_constants": 700,       # Increased to 700
     "has_hardcoded_commands": 600,     # Increased to 600
     "has_hardcoded_paths": 200,        # Increased to 200
-    "uses_internet_access_functions": 300, # Increased to 300
-    "uses_file_operations_functions": 250, # Increased to 250
-    "uses_process_operations_functions": 500, # Increased to 500
+    "uses_internet_access_functions": 800, # Increased to 300
+    "uses_file_operations_functions": 200, # Increased to 250
+    "uses_process_operations_functions": 400, # Increased to 500
     "uses_anti_debugging_functions": 300,   # Increased to 300
     "uses_service_operations_functions": 200, # Increased to 200
 }
-
-
-
-THRESHOLD = 1800  # New threshold to classify a file as ransomware based on its score
 
 THRESHOLDS = {
     "ransom_words": 2,     # Threshold set to 300 occurrences for ransom-related words
@@ -48,20 +46,6 @@ THRESHOLDS = {
     "commands": 1,         # Threshold for hardcoded commands (e.g., 'vssadmin') set to 350
     "paths": 2             # Threshold for hardcoded paths set to 250
 }
-
-
-
-# Define thresholds
-THRESHOLDS = {
-    "ransom_words": 2.125,     # Increased to detect more subtle ransom words
-    "other_apis": 2.300,       # Fine-tuned to avoid benign matches
-    "dll": 1.125,              # Reduced for better detection of relevant DLLs
-    "ip_url": 1.000,           # Adjusted for better detection of IPs and URLs
-    "crypto_constants": 1.250, # Increased to catch crypto constants reliably
-    "commands": 1.250,         # Increased for better detection of command usage
-    "paths": 1.125             # Adjusted for improved file path detection
-}
-
 
 def browse_folder():
     """Open a dialog to select a folder."""
@@ -92,6 +76,19 @@ def load_yara_rules(rule_path):
         print(f"Failed to load YARA rules: {e}")
         return None
 
+def load_yara_rules_from_folder(folder_path):
+    """Load all YARA rules from .yar files in the specified folder."""
+    try:
+        rule_files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith('.yar')]
+        if not rule_files:
+            print("No .yar files found in the folder.")
+            return None
+        rules = yara.compile(filepaths={os.path.basename(f): f for f in rule_files})
+        return rules
+    except Exception as e:
+        print(f"Failed to load YARA rules from folder: {e}")
+        return None
+
 def yara_scan(file_path, rules):
     """Scan a file with YARA rules and return matches."""
     try:
@@ -103,11 +100,18 @@ def yara_scan(file_path, rules):
 
 def analyze_executable(pe):
     """Analyze the executable and return a dictionary of boolean flags."""
-    ransomware_words = ["ransom", "decrypt", "payment", "locked", "encrypt", "extortion", "wallet" ,"pay"]
-    encryption_apis = ["CryptEncrypt", "CryptDecrypt", "CryptGenKey", "CryptCreateHash", "CryptDeriveKey"]
-    other_apis = ["DeleteFile", "MoveFile", "CreateFile", "InternetOpen", "HttpSendRequest", 
-                  "RegSetValue", "RegCreateKey", "ShellExecute", "WinExec", "CreateProcess"]
-   
+    ransomware_words = ["ransom", "decrypt", "payment", "locked", "encrypt", "extortion", "wallet", "pay", "bitcoin", "keylogger", "malware"]
+    encryption_apis = [
+        "CryptEncrypt", "CryptDecrypt", "CryptGenKey", "CryptCreateHash", "CryptDeriveKey",
+        "BCryptEncrypt", "BCryptDecrypt", "BCryptGenerateSymmetricKey", "BCryptHashData"
+    ]
+    other_apis = [
+        "DeleteFile", "MoveFile", "CreateFile", "InternetOpen", "HttpSendRequest", 
+        "RegSetValue", "RegCreateKey", "ShellExecute", "WinExec", "CreateProcess",
+        "WriteFile", "ReadFile", "SetFileAttributes", "FindFirstFile", "FindNextFile",
+        "GetFileAttributes", "SetFilePointer", "InternetReadFile", "InternetWriteFile"
+    ]
+
     memory_image = pe.get_memory_mapped_image().decode(errors="ignore").lower()
     detected_words = [word for word in ransomware_words if word in memory_image]
     detected_count = sum(memory_image.count(word) for word in ransomware_words)  # Count occurrences of words
@@ -125,21 +129,26 @@ def analyze_executable(pe):
     distinct_rsa_key_count = len(set(rsa_keys))
     distinct_aes_sbox_count = len(set(aes_sboxes))
 
-    # Patterns for detecting hardcoded commands and paths
+    # Add more hardcoded commands commonly used by ransomware
     hardcoded_commands = [
         "vssadmin delete shadows", 
         "bcdedit /set {default} recoveryenabled no", 
         "cipher /w",
-        "wbadmin delete catalog",  # Deletes backup catalog
-        "vssadmin resize shadowstorage",  # Modifies shadow storage
-        "schtasks /delete /tn",  # Deletes scheduled tasks
-        "taskkill /f /im",  # Forcefully kills processes
-        "icacls",  # Modifies file permissions
-        "takeown /f",  # Takes ownership of files
-        "attrib +h +s",  # Hides files
-        "del /f /q",  # Deletes files forcefully and quietly
-        "net stop",  # Stops services
-        "netsh advfirewall set allprofiles state off"  # Disables firewall
+        "wbadmin delete catalog", 
+        "vssadmin resize shadowstorage", 
+        "schtasks /delete /tn", 
+        "taskkill /f /im", 
+        "icacls", 
+        "takeown /f", 
+        "attrib +h +s", 
+        "del /f /q", 
+        "net stop", 
+        "netsh advfirewall set allprofiles state off",
+        "powershell -command Remove-Item",  # PowerShell command to delete files
+        "powershell -command Set-ExecutionPolicy",  # Modify execution policy
+        "wmic shadowcopy delete",  # Deletes shadow copies
+        "bcdedit /set safeboot minimal",  # Forces safe boot
+        "bcdedit /deletevalue safeboot"  # Removes safe boot
     ]
     detected_commands = [cmd for cmd in hardcoded_commands if cmd in memory_image]
     distinct_command_count = len(set(detected_commands))
@@ -200,10 +209,20 @@ def analyze_executable(pe):
     # Use distinct counts for other APIs
     distinct_other_apis_count = len(set(detected_other_apis))
 
+    # Add more DLL categories for detection
     dll_categories = {
-        "crypto_dlls": ["bcrypt.dll", "ncrypt.dll", "crypt32.dll", "advapi32.dll", "wincrypt.h"],
-        "file_system_dlls": ["kernel32.dll", "shell32.dll", "shlwapi.dll", "ntdll.dll", "ole32.dll"],
-        "internet_dlls": ["wininet.dll", "winhttp.dll", "ws2_32.dll", "urlmon.dll", "httpapi.dll", "dnsapi.dll"]
+        "crypto_dlls": [
+            "bcrypt.dll", "ncrypt.dll", "crypt32.dll", "advapi32.dll", "wincrypt.h",
+            "libeay32.dll", "ssleay32.dll", "openssl.dll"
+        ],
+        "file_system_dlls": [
+            "kernel32.dll", "shell32.dll", "shlwapi.dll", "ntdll.dll", "ole32.dll",
+            "msvcrt.dll", "user32.dll", "gdi32.dll"
+        ],
+        "internet_dlls": [
+            "wininet.dll", "winhttp.dll", "ws2_32.dll", "urlmon.dll", "httpapi.dll", "dnsapi.dll",
+            "iphlpapi.dll", "netapi32.dll", "rasapi32.dll"
+        ]
     }
 
     detected_dlls = {
@@ -226,33 +245,48 @@ def analyze_executable(pe):
     distinct_file_system_dlls_count = len(set(detected_dlls["file_system_dlls"]))
     distinct_internet_dlls_count = len(set(detected_dlls["internet_dlls"]))
 
-    # Categorize suspicious functions
+    # Add more suspicious functions for categorization
     suspicious_function_categories = {
         "internet_access": {
-            "functions": ["InternetOpen", "InternetConnect", "HttpOpenRequest", "HttpSendRequest",
-                          "WinHttpOpen", "WinHttpConnect", "WinHttpSendRequest", "socket", "connect", "send", "recv"],
-            "threshold": 3,
+            "functions": [
+                "InternetOpen", "InternetConnect", "HttpOpenRequest", "HttpSendRequest",
+                "WinHttpOpen", "WinHttpConnect", "WinHttpSendRequest", "socket", "connect", "send", "recv",
+                "InternetReadFile", "InternetWriteFile", "DnsQuery", "getaddrinfo", "gethostbyname"
+            ],
+            "threshold": 2,
             "weight": FLAGS["uses_internet_access_functions"]
         },
         "file_operations": {
-            "functions": ["CreateFile", "ReadFile", "WriteFile", "DeleteFile", "RemoveDirectory", "CopyFile"],
+            "functions": [
+                "CreateFile", "ReadFile", "WriteFile", "DeleteFile", "RemoveDirectory", "CopyFile",
+                "SetFileAttributes", "FindFirstFile", "FindNextFile", "GetFileAttributes", "SetFilePointer"
+            ],
             "threshold": 3,
             "weight": FLAGS["uses_file_operations_functions"]
         },
         "process_operations": {
-            "functions": ["OpenProcess", "VirtualAlloc", "VirtualAllocEx", "WriteProcessMemory", "ReadProcessMemory",
-                          "CreateRemoteThread", "AdjustTokenPrivileges", "OpenProcessToken"],
+            "functions": [
+                "OpenProcess", "VirtualAlloc", "VirtualAllocEx", "WriteProcessMemory", "ReadProcessMemory",
+                "CreateRemoteThread", "AdjustTokenPrivileges", "OpenProcessToken", "TerminateProcess",
+                "CreateThread", "SuspendThread", "ResumeThread"
+            ],
             "threshold": 2,
             "weight": FLAGS["uses_process_operations_functions"]
         },
         "anti_debugging": {
-            "functions": ["IsDebuggerPresent", "CheckRemoteDebuggerPresent", "NtQueryInformationProcess",
-                          "GetTickCount", "QueryPerformanceCounter", "RDTSC", "NtDelayExecution"],
+            "functions": [
+                "IsDebuggerPresent", "CheckRemoteDebuggerPresent", "NtQueryInformationProcess",
+                "GetTickCount", "QueryPerformanceCounter", "RDTSC", "NtDelayExecution",
+                "OutputDebugString", "DebugBreak", "SetUnhandledExceptionFilter"
+            ],
             "threshold": 2,
             "weight": FLAGS["uses_anti_debugging_functions"]
         },
         "service_operations": {
-            "functions": ["CreateService", "OpenService", "StartService"],
+            "functions": [
+                "CreateService", "OpenService", "StartService", "ControlService", "DeleteService",
+                "QueryServiceStatus", "ChangeServiceConfig"
+            ],
             "threshold": 1,
             "weight": FLAGS["uses_service_operations_functions"]
         }
@@ -452,38 +486,115 @@ def display_results(results):
     except Exception as e:
         print(f"\nFailed to create Excel file: {e}")
 
+def display_summary(results):
+    """Display a summary of the analysis in a user-friendly format."""
+    print("\nSummary of Analysis:")
+    summary_data = []
+    for result in results:
+        if result is None:
+            continue
+        summary_data.append([
+            os.path.basename(result["file_path"]),
+            result["score"],
+            "Yes" if result["is_ransomware"] else "No",
+            ", ".join(result["yara_matches"]) if result["yara_matches"] else "None"
+        ])
+    headers = ["File", "Score", "Ransomware Detected", "YARA Matches"]
+    print(tabulate(summary_data, headers=headers, tablefmt="grid"))
+
+def show_summary_ui(results):
+    """Display the summary in a tkinter UI."""
+    root = tk.Tk()
+    root.title("Ransomware Detection Summary")
+    
+    # Calculate total ransomware files
+    total_files = len(results)
+    ransomware_files = sum(1 for result in results if result and result["is_ransomware"])
+    
+    # Add a label to display the total ransomware count
+    summary_label = tk.Label(
+        root, 
+        text=f"Total Files: {total_files} | Ransomware Detected: {ransomware_files}",
+        font=("Arial", 12, "bold")
+    )
+    summary_label.pack(pady=10)
+    
+    # Create a treeview to display the results
+    tree = ttk.Treeview(root, columns=("File", "Score", "Ransomware Detected", "YARA Matches"), show="headings")
+    tree.heading("File", text="File")
+    tree.heading("Score", text="Score")
+    tree.heading("Ransomware Detected", text="Ransomware Detected")
+    tree.heading("YARA Matches", text="YARA Matches")
+    tree.column("File", width=200)
+    tree.column("Score", width=80)
+    tree.column("Ransomware Detected", width=150)
+    tree.column("YARA Matches", width=200)
+    
+    # Insert results into the treeview
+    for result in results:
+        if result is None:
+            continue
+        tree.insert("", "end", values=(
+            os.path.basename(result["file_path"]),
+            result["score"],
+            "Yes" if result["is_ransomware"] else "No",
+            ", ".join(result["yara_matches"]) if result["yara_matches"] else "None"
+        ))
+    
+    tree.pack(fill="both", expand=True)
+    
+    # Add a close button
+    close_button = ttk.Button(root, text="Close", command=root.destroy)
+    close_button.pack(pady=10)
+    
+    root.mainloop()
+
 def process_folder():
     """Main function to browse folder, find executables, and decompile them."""
     folder = browse_folder()
     if not folder:
-        print("No folder selected.")
+        messagebox.showinfo("No Folder Selected", "Please select a folder to analyze.")
         return
 
-    # Load YARA rules
-    yara_rules_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "yara_rules.yar")
-    yara_rules = load_yara_rules(yara_rules_path)
+    # Load YARA rules from the same folder as the script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    yara_rules = load_yara_rules_from_folder(script_dir)
     if yara_rules is None:
-        print("YARA rules not loaded. Skipping YARA detection.")
+        messagebox.showwarning("YARA Rules Missing", "YARA rules not loaded. Skipping YARA detection.")
     
     executables = find_executables(folder)
     if not executables:
-        print("No executables found in the selected folder.")
+        messagebox.showinfo("No Executables Found", "No executables found in the selected folder.")
         return
     
-    print(f"Found {len(executables)} executable(s). Analyzing...")
+    # Create a progress window
+    progress_window = tk.Tk()
+    progress_window.title("Analyzing Files")
+    tk.Label(progress_window, text="Analyzing files, please wait...").pack(pady=10)
+    progress_bar = ttk.Progressbar(progress_window, length=300, mode="determinate", maximum=len(executables))
+    progress_bar.pack(pady=10)
+    progress_window.update()
     
     # Collect results for all executables
     results = []
-    for exe in executables:
-        print(f"Analyzing: {os.path.basename(exe)}...")
+    for i, exe in enumerate(executables):
+        progress_bar["value"] = i + 1
+        progress_window.update()
         result = decompile_executable(exe, yara_rules)
         results.append(result)
     
+    progress_window.destroy()  # Close the progress window
+    
     # Display results in table format
     display_results(results)
+    
+    # Show the summary in a UI
+    show_summary_ui(results)
 
 if __name__ == "__main__":
     process_folder()
+
+
 
 
 
