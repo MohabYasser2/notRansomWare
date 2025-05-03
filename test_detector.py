@@ -8,29 +8,60 @@ from tabulate import tabulate  # For creating formatted tables
 from collections import defaultdict
 import datetime
 import pandas as pd  # For Excel export
+import yara  # Add YARA library for rule-based detection
 
 # Define boolean flags and their weights
 FLAGS = {
-    "has_suspicious_sections": 5,
-    "has_high_entropy": 4,
-    "has_suspicious_imports": 6,
-    "has_large_code_section": 3,
-    "has_ransom_strings": 7,  # New flag for ransom-related strings
-    "no_digital_signature": 2,  # New flag for missing digital signature
-    "uses_encryption_apis": 5,  # New flag for encryption-related APIs
-    "uses_other_apis": 1,  # New flag for other APIs
-    "uses_suspicious_functions": 6,  # New flag for suspicious functions
-    "uses_crypto_dlls": 3,  # New flag for crypto DLLs
-    "uses_file_system_dlls": 2,  # New flag for file system DLLs
-    "uses_internet_dlls": 4,  # New flag for internet DLLs
-    "has_hardcoded_ips": 3,  # New flag for hardcoded IPs
-    "has_hardcoded_urls": 3,  # New flag for hardcoded URLs
-    "has_crypto_constants": 5,  # New flag for detecting RSA/AES constants
-    "has_hardcoded_commands": 4,  # New flag for hardcoded commands
-    "has_hardcoded_paths": 3,  # New flag for hardcoded paths
+    "has_suspicious_sections": 150,   # Increased weight to 150
+    "has_high_entropy": 200,           # Increased to 200
+    "has_suspicious_imports": 100,     # Increased to 100
+    "has_large_code_section": 125,     # Increased to 125
+    "has_ransom_strings": 1000,        # Significantly increased to 1000
+    "no_digital_signature": 250,       # Increased to 250
+    "uses_encryption_apis": 1000,      # Increased to 1000 for strong detection
+    "uses_other_apis": 100,            # Increased to 200
+    "uses_crypto_dlls": 500,           # Increased to 500
+    "uses_file_system_dlls": 100,      # Increased to 100
+    "uses_internet_dlls": 200,         # Increased to 200
+    "has_hardcoded_ips": 300,          # Increased to 300
+    "has_hardcoded_urls": 250,         # Increased to 250
+    "has_crypto_constants": 700,       # Increased to 700
+    "has_hardcoded_commands": 600,     # Increased to 600
+    "has_hardcoded_paths": 200,        # Increased to 200
+    "uses_internet_access_functions": 300, # Increased to 300
+    "uses_file_operations_functions": 250, # Increased to 250
+    "uses_process_operations_functions": 500, # Increased to 500
+    "uses_anti_debugging_functions": 300,   # Increased to 300
+    "uses_service_operations_functions": 200, # Increased to 200
 }
 
-THRESHOLD = 10  # Threshold score to classify as ransomware
+
+
+THRESHOLD = 1800  # New threshold to classify a file as ransomware based on its score
+
+THRESHOLDS = {
+    "ransom_words": 2,     # Threshold set to 300 occurrences for ransom-related words
+    "other_apis": 5,       # Threshold set to 500 distinct other APIs
+    "dll": 2,              # Set to 200 DLL occurrences
+    "ip_url": 1,           # Threshold for IP and URL counts set to 150
+    "crypto_constants": 1, # Threshold for crypto constants (RSA/AES) set to 400
+    "commands": 1,         # Threshold for hardcoded commands (e.g., 'vssadmin') set to 350
+    "paths": 2             # Threshold for hardcoded paths set to 250
+}
+
+
+
+# Define thresholds
+THRESHOLDS = {
+    "ransom_words": 2.125,     # Increased to detect more subtle ransom words
+    "other_apis": 2.300,       # Fine-tuned to avoid benign matches
+    "dll": 1.125,              # Reduced for better detection of relevant DLLs
+    "ip_url": 1.000,           # Adjusted for better detection of IPs and URLs
+    "crypto_constants": 1.250, # Increased to catch crypto constants reliably
+    "commands": 1.250,         # Increased for better detection of command usage
+    "paths": 1.125             # Adjusted for improved file path detection
+}
+
 
 def browse_folder():
     """Open a dialog to select a folder."""
@@ -52,6 +83,24 @@ def find_executables(folder):
                 executables.append(file_path)
     return executables
 
+def load_yara_rules(rule_path):
+    """Load YARA rules from a file."""
+    try:
+        rules = yara.compile(filepath=rule_path)
+        return rules
+    except Exception as e:
+        print(f"Failed to load YARA rules: {e}")
+        return None
+
+def yara_scan(file_path, rules):
+    """Scan a file with YARA rules and return matches."""
+    try:
+        matches = rules.match(file_path)
+        return matches
+    except Exception as e:
+        print(f"Failed to scan {file_path} with YARA: {e}")
+        return []
+
 def analyze_executable(pe):
     """Analyze the executable and return a dictionary of boolean flags."""
     ransomware_words = ["ransom", "decrypt", "payment", "locked", "encrypt", "extortion", "wallet" ,"pay"]
@@ -64,11 +113,6 @@ def analyze_executable(pe):
     detected_count = sum(memory_image.count(word) for word in ransomware_words)  # Count occurrences of words
     distinct_detected_count = len(set(detected_words))  # Count distinct words
 
-    RANSOM_WORDS_THRESHOLD = 4  # Threshold for triggering the ransom strings flag
-    OTHER_APIS_THRESHOLD = 3  # Threshold for triggering the other APIs flag
-    DLL_THRESHOLD = 2  # Threshold for triggering DLL-related flags
-    IP_URL_THRESHOLD = 1  # Threshold for triggering the hardcoded IP/URL flag
-
     # Patterns for detecting RSA public key blobs and AES S-box constants
     rsa_key_pattern = rb'\x30\x82[\x00-\xFF]{2}\x02\x82[\x00-\xFF]{2}\x00[\x00-\xFF]{128,}'  # ASN.1 DER-encoded RSA key
     aes_sbox_pattern = rb'\x63\x7c\x77\x7b\xf2\x6b\x6f\xc5\x30\x01\x67\x2b\xfe\xd7\xab\x76'  # AES S-box constants
@@ -80,9 +124,6 @@ def analyze_executable(pe):
     # Use distinct counts for RSA keys and AES S-box constants
     distinct_rsa_key_count = len(set(rsa_keys))
     distinct_aes_sbox_count = len(set(aes_sboxes))
-
-    # Threshold for RSA/AES detection
-    CRYPTO_CONSTANTS_THRESHOLD = 1
 
     # Patterns for detecting hardcoded commands and paths
     hardcoded_commands = [
@@ -100,20 +141,29 @@ def analyze_executable(pe):
         "net stop",  # Stops services
         "netsh advfirewall set allprofiles state off"  # Disables firewall
     ]
+    detected_commands = [cmd for cmd in hardcoded_commands if cmd in memory_image]
+    distinct_command_count = len(set(detected_commands))
+
     # Updated regex pattern for detecting valid file paths
     path_pattern = r'([a-zA-Z]:\\(?:[a-zA-Z0-9._\-\\ ]+\\)*[a-zA-Z0-9._\- ]+)|(\.\.?\\(?:[a-zA-Z0-9._\-\\ ]+\\)*[a-zA-Z0-9._\- ]+)'
 
     # Search for hardcoded commands and paths in the memory-mapped image
-    detected_commands = [cmd for cmd in hardcoded_commands if cmd in memory_image]
     detected_paths = re.findall(path_pattern, memory_image)
 
     # Use distinct counts for commands and paths
-    distinct_command_count = len(set(detected_commands))
     distinct_path_count = len(set(path[0] or path[1] for path in detected_paths if path[0] or path[1]))
 
-    # Threshold for hardcoded commands and paths
-    COMMANDS_THRESHOLD = 1
-    PATHS_THRESHOLD = 1
+    # Patterns for detecting hardcoded URLs
+    url_pattern = r'https?://[^\s/$.?#].[^\s]*'
+    hardcoded_urls = re.findall(url_pattern, memory_image)
+
+    # Filter out Microsoft URLs
+    microsoft_domains = ["microsoft.com", "windows.net", "msft.net"]
+    filtered_urls = [
+        url for url in hardcoded_urls
+        if not any(domain in url for domain in microsoft_domains)
+    ]
+    distinct_url_count = len(set(filtered_urls))
 
     # Check for digital signature using the provided method
     try:
@@ -182,29 +232,29 @@ def analyze_executable(pe):
             "functions": ["InternetOpen", "InternetConnect", "HttpOpenRequest", "HttpSendRequest",
                           "WinHttpOpen", "WinHttpConnect", "WinHttpSendRequest", "socket", "connect", "send", "recv"],
             "threshold": 3,
-            "weight": 4
+            "weight": FLAGS["uses_internet_access_functions"]
         },
         "file_operations": {
             "functions": ["CreateFile", "ReadFile", "WriteFile", "DeleteFile", "RemoveDirectory", "CopyFile"],
             "threshold": 3,
-            "weight": 3
+            "weight": FLAGS["uses_file_operations_functions"]
         },
         "process_operations": {
             "functions": ["OpenProcess", "VirtualAlloc", "VirtualAllocEx", "WriteProcessMemory", "ReadProcessMemory",
                           "CreateRemoteThread", "AdjustTokenPrivileges", "OpenProcessToken"],
             "threshold": 2,
-            "weight": 5
+            "weight": FLAGS["uses_process_operations_functions"]
         },
         "anti_debugging": {
             "functions": ["IsDebuggerPresent", "CheckRemoteDebuggerPresent", "NtQueryInformationProcess",
                           "GetTickCount", "QueryPerformanceCounter", "RDTSC", "NtDelayExecution"],
             "threshold": 2,
-            "weight": 3
+            "weight": FLAGS["uses_anti_debugging_functions"]
         },
         "service_operations": {
             "functions": ["CreateService", "OpenService", "StartService"],
             "threshold": 1,
-            "weight": 2
+            "weight": FLAGS["uses_service_operations_functions"]
         }
     }
 
@@ -235,22 +285,12 @@ def analyze_executable(pe):
     }
 
     ip_pattern = r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'
-    url_pattern = r'https?://[^\s/$.?#].[^\s]*'
 
-    # Search for IP addresses and URLs in the memory-mapped image
+    # Search for IP addresses in the memory-mapped image
     hardcoded_ips = re.findall(ip_pattern, memory_image)
-    hardcoded_urls = re.findall(url_pattern, memory_image)
 
-    # Filter out Microsoft URLs
-    microsoft_domains = ["microsoft.com", "windows.net", "msft.net"]
-    filtered_urls = [
-        url for url in hardcoded_urls
-        if not any(domain in url for domain in microsoft_domains)
-    ]
-
-    # Use distinct counts for IPs and filtered URLs
+    # Use distinct counts for IPs
     distinct_ip_count = len(set(hardcoded_ips))
-    distinct_url_count = len(set(filtered_urls))
 
     flags = {
         "has_suspicious_sections": any(
@@ -269,18 +309,18 @@ def analyze_executable(pe):
             section.Name.decode().strip() == ".text" and section.Misc_VirtualSize > 1000000
             for section in pe.sections
         ),
-        "has_ransom_strings": distinct_detected_count >= RANSOM_WORDS_THRESHOLD,  # Trigger flag if count exceeds threshold
+        "has_ransom_strings": distinct_detected_count >= THRESHOLDS["ransom_words"],  # Trigger flag if count exceeds threshold
         "no_digital_signature": not has_digital_signature,  # Trigger flag if no digital signature
         "uses_encryption_apis": bool(detected_encryption_apis),  # Trigger flag if encryption APIs are detected
-        "uses_other_apis": distinct_other_apis_count >= OTHER_APIS_THRESHOLD,  # Trigger flag if distinct count exceeds threshold
-        "uses_crypto_dlls": distinct_crypto_dlls_count >= DLL_THRESHOLD,
-        "uses_file_system_dlls": distinct_file_system_dlls_count >= DLL_THRESHOLD,
-        "uses_internet_dlls": distinct_internet_dlls_count >= DLL_THRESHOLD,
-        "has_hardcoded_ips": distinct_ip_count >= IP_URL_THRESHOLD,
-        "has_hardcoded_urls": distinct_url_count >= IP_URL_THRESHOLD,
-        "has_crypto_constants": distinct_rsa_key_count + distinct_aes_sbox_count >= CRYPTO_CONSTANTS_THRESHOLD,
-        "has_hardcoded_commands": distinct_command_count >= COMMANDS_THRESHOLD,
-        "has_hardcoded_paths": distinct_path_count >= PATHS_THRESHOLD,
+        "uses_other_apis": distinct_other_apis_count >= THRESHOLDS["other_apis"],  # Trigger flag if distinct count exceeds threshold
+        "uses_crypto_dlls": distinct_crypto_dlls_count >= THRESHOLDS["dll"],
+        "uses_file_system_dlls": distinct_file_system_dlls_count >= THRESHOLDS["dll"],
+        "uses_internet_dlls": distinct_internet_dlls_count >= THRESHOLDS["dll"],
+        "has_hardcoded_ips": distinct_ip_count >= THRESHOLDS["ip_url"],
+        "has_hardcoded_urls": distinct_url_count >= THRESHOLDS["ip_url"],
+        "has_crypto_constants": distinct_rsa_key_count + distinct_aes_sbox_count >= THRESHOLDS["crypto_constants"],
+        "has_hardcoded_commands": distinct_command_count >= THRESHOLDS["commands"],
+        "has_hardcoded_paths": distinct_path_count >= THRESHOLDS["paths"],
     }
     for category, details in suspicious_function_categories.items():
         flags[f"uses_{category}_functions"] = distinct_suspicious_function_counts[category] >= details["threshold"]
@@ -312,7 +352,7 @@ def calculate_score(flags):
     score = sum(weight for flag, weight in FLAGS.items() if flags.get(flag, False))
     return score
 
-def decompile_executable(file_path):
+def decompile_executable(file_path, yara_rules=None):
     """Decompile an executable, analyze it, and calculate its score."""
     try:
         pe = pefile.PE(file_path)
@@ -323,6 +363,9 @@ def decompile_executable(file_path):
         # Calculate the score
         score = calculate_score(flags)
         
+        # Perform YARA scan if rules are provided
+        yara_matches = yara_scan(file_path, yara_rules) if yara_rules else []
+        
         # Return the results
         is_ransomware = score >= THRESHOLD
         return {
@@ -330,61 +373,32 @@ def decompile_executable(file_path):
             "flags": flags,
             "counts": counts,
             "score": score,
-            "is_ransomware": is_ransomware
+            "is_ransomware": is_ransomware,
+            "yara_matches": [match.rule for match in yara_matches]  # Extract rule names
         }
     except Exception as e:
         print(f"Failed to decompile {file_path}: {e}")
         return None
 
 def display_results(results):
-    """Display results in table format and save to log files and Excel."""
+    """Display results in table format and save to an Excel file."""
     if not results:
         print("No results to display.")
         return
     
     # Create timestamp for output files
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
-    os.makedirs(log_dir, exist_ok=True)
+    # Create a logs subdirectory in the same folder as the script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    log_dir = os.path.join(script_dir, "logs")
+    os.makedirs(log_dir, exist_ok=True)  # Ensure the logs folder exists
     
-    # Use ASCII characters for file output to avoid encoding issues
-    true_mark = "YES"
-    false_mark = "NO"
-    
-    # Prepare data for flag table (for display)
-    flag_headers = ["File"]
-    flag_headers.extend(FLAGS.keys())
-    flag_headers.append("Score")
-    flag_headers.append("Is Ransomware")
-    
-    # For console display (can use Unicode)
-    flag_rows_display = []
-    # For file output (ASCII only)
-    flag_rows_file = []
-    # For Excel export (boolean values)
+    # Prepare data for flag table
     excel_flags_data = []
-    
     for result in results:
         if result is None:
             continue
         
-        # For display with Unicode symbols
-        row_display = [os.path.basename(result["file_path"])]
-        for flag in FLAGS.keys():
-            row_display.append("✓" if result["flags"].get(flag, False) else "✗")
-        row_display.append(result["score"])
-        row_display.append("YES" if result["is_ransomware"] else "NO")
-        flag_rows_display.append(row_display)
-        
-        # For file output with ASCII-only
-        row_file = [os.path.basename(result["file_path"])]
-        for flag in FLAGS.keys():
-            row_file.append(true_mark if result["flags"].get(flag, False) else false_mark)
-        row_file.append(result["score"])
-        row_file.append("YES" if result["is_ransomware"] else "NO")
-        flag_rows_file.append(row_file)
-        
-        # For Excel with actual boolean values and numbers
         excel_row = {
             "File": os.path.basename(result["file_path"]),
             "Score": result["score"],
@@ -398,93 +412,45 @@ def display_results(results):
     # Prepare data for counts table
     excel_counts_data = []
     if results[0] and "counts" in results[0]:
-        count_headers = ["File"]
-        count_headers.extend(results[0]["counts"].keys())
-        
-        count_rows = []
         for result in results:
             if result is None:
                 continue
                 
-            row = [os.path.basename(result["file_path"])]
-            for count_key in results[0]["counts"].keys():
-                row.append(result["counts"].get(count_key, 0))
-            count_rows.append(row)
-            
-            # For Excel with structured data
             excel_row = {"File": os.path.basename(result["file_path"])}
             for count_key, count_value in result["counts"].items():
                 excel_row[count_key] = count_value
             excel_counts_data.append(excel_row)
     
-    # Generate tables
-    flags_table_display = tabulate(flag_rows_display, flag_headers, tablefmt="grid")
-    flags_table_file = tabulate(flag_rows_file, flag_headers, tablefmt="grid")
-    counts_table = tabulate(count_rows, count_headers, tablefmt="grid")
+    # Prepare data for YARA matches
+    yara_data = []
+    for result in results:
+        if result is None:
+            continue
+        yara_row = {
+            "File": os.path.basename(result["file_path"]),
+            "YARA Matches": ", ".join(result["yara_matches"]) if result["yara_matches"] else "None"
+        }
+        yara_data.append(yara_row)
     
-    # Display tables in console (can use Unicode)
-    print("\n--- ANALYSIS FLAGS ---")
-    print(flags_table_display)
-    
-    print("\n--- DETECTED COUNTS ---")
-    print(counts_table)
-    
-    # Summary
-    ransomware_count = sum(1 for result in results if result and result["is_ransomware"])
-    summary_text = f"\nSummary: {ransomware_count} out of {len([r for r in results if r is not None])} files classified as ransomware."
-    print(summary_text)
-    
-    # Save to log files with explicit UTF-8 encoding
-    flags_log_path = os.path.join(log_dir, f"analysis_flags_{timestamp}.txt")
-    counts_log_path = os.path.join(log_dir, f"detection_counts_{timestamp}.txt")
-    
-    try:
-        # Use UTF-8 encoding for file writing
-        with open(flags_log_path, "w", encoding="utf-8") as f:
-            f.write("ANALYSIS FLAGS\n")
-            f.write(flags_table_display)
-            f.write(f"\n{summary_text}")
-    except UnicodeEncodeError:
-        # Fallback to ASCII version if UTF-8 fails
-        with open(flags_log_path, "w") as f:
-            f.write("ANALYSIS FLAGS\n")
-            f.write(flags_table_file)
-            f.write(f"\n{summary_text}")
-    
-    with open(counts_log_path, "w") as f:
-        f.write("DETECTED COUNTS\n")
-        f.write(counts_table)
-    
-    # Create Excel file with two sheets
+    # Create Excel file with three sheets
     excel_path = os.path.join(log_dir, f"ransomware_analysis_{timestamp}.xlsx")
     
     try:
         # Convert data to pandas DataFrames
         flags_df = pd.DataFrame(excel_flags_data)
         counts_df = pd.DataFrame(excel_counts_data)
+        yara_df = pd.DataFrame(yara_data)
         
         # Create Excel writer
         with pd.ExcelWriter(excel_path) as writer:
             # Write each dataframe to a different sheet
             flags_df.to_excel(writer, sheet_name='Analysis Flags', index=False)
             counts_df.to_excel(writer, sheet_name='Detection Counts', index=False)
-            
-            # Auto-adjust columns' width
-            for sheet in writer.sheets:
-                worksheet = writer.sheets[sheet]
-                for i, col in enumerate(flags_df.columns if sheet == 'Analysis Flags' else counts_df.columns):
-                    # Find the maximum length of the column
-                    max_len = max(
-                        flags_df[col].astype(str).map(len).max() if sheet == 'Analysis Flags' else counts_df[col].astype(str).map(len).max(),
-                        len(str(col))
-                    ) + 2  # Add a little extra space
-                    # Set the column width
-                    worksheet.column_dimensions[chr(65 + i)].width = max_len
+            yara_df.to_excel(writer, sheet_name='YARA Matches', index=False)
         
-        print(f"\nLogs saved to:\n- {flags_log_path}\n- {counts_log_path}\n- {excel_path}")
+        print(f"\nLogs saved to Excel file:\n- {excel_path}")
     except Exception as e:
         print(f"\nFailed to create Excel file: {e}")
-        print(f"\nText logs saved to:\n- {flags_log_path}\n- {counts_log_path}")
 
 def process_folder():
     """Main function to browse folder, find executables, and decompile them."""
@@ -493,6 +459,12 @@ def process_folder():
         print("No folder selected.")
         return
 
+    # Load YARA rules
+    yara_rules_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "yara_rules.yar")
+    yara_rules = load_yara_rules(yara_rules_path)
+    if yara_rules is None:
+        print("YARA rules not loaded. Skipping YARA detection.")
+    
     executables = find_executables(folder)
     if not executables:
         print("No executables found in the selected folder.")
@@ -504,7 +476,7 @@ def process_folder():
     results = []
     for exe in executables:
         print(f"Analyzing: {os.path.basename(exe)}...")
-        result = decompile_executable(exe)
+        result = decompile_executable(exe, yara_rules)
         results.append(result)
     
     # Display results in table format
@@ -512,5 +484,9 @@ def process_folder():
 
 if __name__ == "__main__":
     process_folder()
+
+
+
+
 
 
