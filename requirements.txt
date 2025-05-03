@@ -1,0 +1,10 @@
+pefile
+numpy
+joblib
+scikit-learn
+tk
+pandas
+tabulate
+yara-python
+tqdm
+capstone

@@ -38,8 +38,8 @@ def extract_email_from_resume(resume_text):
 
 def send_email(subject, body, recipient_email):
     try:
-        sender_email = "mohabhelp@gmail.com"  # Replace with your email
-        sender_password = "yuqt ifwe dloy ozjr"  # Replace with your email password
+        sender_email = "tawasolappp@gmail.com"  # Replace with your email
+        sender_password = "lsjk pjeg cwnt qbnn"  # Replace with your email password
 
         msg = MIMEMultipart()
         msg['From'] = sender_email

