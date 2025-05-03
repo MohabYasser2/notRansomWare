@@ -8,3 +8,7 @@ tabulate
 yara-python
 tqdm
 capstone
+PyPDF2
+google-generativeai
+Flask
+cryptography
