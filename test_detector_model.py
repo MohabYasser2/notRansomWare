@@ -6,6 +6,7 @@ import pandas as pd
 import joblib
 import pefile
 import re
+import magic  # Add import for magic library
 
 # Load the trained model
 model = joblib.load("ransomware_model.pkl")
@@ -107,6 +108,11 @@ def predict_ransomware(pe_file):
 # Scan a folder recursively
 def scan_folder(folder):
     results = []
+    executable_mime_types = [
+        "application/x-dosexec",  # For PE executables
+        "application/vnd.microsoft.portable-executable",  # Alternate MIME for PE files
+        "application/x-msdownload"  # Common MIME for Windows executables
+    ]
 
     # Initialize progress bar
     root = tk.Tk()
@@ -117,15 +123,19 @@ def scan_folder(folder):
     progress_label.pack()
     root.update()
 
-    # Count total .exe files
-    total_files = sum(len(files) for _, _, files in os.walk(folder) if any(f.endswith(".exe") for f in files))
+    # Count total executable files
+    total_files = sum(
+        len(files) for root_dir, _, files in os.walk(folder)  # Use proper variable names
+        if any(magic.Magic(mime=True).from_file(os.path.join(root_dir, file)) in executable_mime_types for file in files)
+    )
     progress["maximum"] = total_files
     progress["value"] = 0
 
-    for root_dir, _, files in os.walk(folder):
+    for root_dir, _, files in os.walk(folder):  # Use proper variable names
         for file in files:
-            if file.endswith(".exe"):
-                full_path = os.path.join(root_dir, file)
+            full_path = os.path.join(root_dir, file)
+            mime_type = magic.Magic(mime=True).from_file(full_path)
+            if mime_type in executable_mime_types:
                 verdict = predict_ransomware(full_path)
                 results.append({"File": full_path, "Prediction": verdict})
                 progress["value"] += 1

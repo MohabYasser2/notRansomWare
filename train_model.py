@@ -9,6 +9,7 @@ import re  # Add import for regex
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk  # Import ttk for progress bar
+import magic  # Add import for magic library
 
 # Step 1: Extract combined features
 def extract_features(pe_file):
@@ -102,15 +103,24 @@ def extract_features(pe_file):
 def create_feature_matrix_from_directories(ransomware_dir, benign_dir):
     file_paths = []
     labels = []
+    executable_mime_types = [
+        "application/x-dosexec",  # For PE executables
+        "application/vnd.microsoft.portable-executable",  # Alternate MIME for PE files
+        "application/x-msdownload"  # Common MIME for Windows executables
+    ]
 
     for filename in os.listdir(ransomware_dir):
-        if filename.endswith('.exe'):
-            file_paths.append(os.path.join(ransomware_dir, filename))
+        full_path = os.path.join(ransomware_dir, filename)
+        mime_type = magic.Magic(mime=True).from_file(full_path)
+        if mime_type in executable_mime_types:
+            file_paths.append(full_path)
             labels.append(1)
 
     for filename in os.listdir(benign_dir):
-        if filename.endswith('.exe'):
-            file_paths.append(os.path.join(benign_dir, filename))
+        full_path = os.path.join(benign_dir, filename)
+        mime_type = magic.Magic(mime=True).from_file(full_path)
+        if mime_type in executable_mime_types:
+            file_paths.append(full_path)
             labels.append(0)
 
     return file_paths, labels

